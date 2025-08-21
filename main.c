@@ -6,10 +6,18 @@
 
 #define LOOP_INTERVAL_NSEC 1000000000L
 // #define PRINT_CHARACTER "\u25cf" //circle
-#define PRINT_CHARACTER "\u25a0 " //square with space
+// #define PRINT_CHARACTER "\u25a0 " //Black Square + space
+#define PRINT_CHARACTER "\u25fc " //Black Square
+// #define PRINT_ON_COLOUR "\e[95m" // bright pink foreground
+#define PRINT_ON_COLOUR "\e[93m" // bright yellow foreground
+#define PRINT_BG_COLOUR "\e[43m" //yellow BG
+#define PRINT_OFF_COLOUR "\e[90m" // bright black foreground
+// #define PRINT_OFF_COLOUR "\e[30m" // dark black foreground
+// #define PRINT_CHARACTER "\u25fc " //Black Mediun Square
+// #define PRINT_CHARACTER "\u25fb " //White Mediun Square
 
 
-char * flip_fragment_vert(char * save_locaion, const char * input_fragment)
+void flip_fragment_vert(char * save_locaion, const char * input_fragment)
 {
     for(int y = 0; y < fragment_height; y++)
     {
@@ -20,7 +28,7 @@ char * flip_fragment_vert(char * save_locaion, const char * input_fragment)
     }
 }
 
-char * flip_fragment_hor(char * save_locaion, const char * input_fragment)
+void flip_fragment_hor(char * save_locaion, const char * input_fragment)
 {
     for(int y = 0; y < fragment_height; y++)
     {
@@ -35,11 +43,11 @@ void print_pixel(int binary_val)
 {
     if (binary_val > 0) //if the value at position is 1, print yellow spaces
     {
-        printf("\e[93m%s",PRINT_CHARACTER); //yellow background and 2 spaces
+        printf("%s%s%s",PRINT_ON_COLOUR,PRINT_BG_COLOUR,PRINT_CHARACTER); //yellow background and 2 spaces
     }
     else 
     {
-        printf("\e[90m%s",PRINT_CHARACTER); //black background and 2 spaces
+        printf("%s\e[49m%s",PRINT_OFF_COLOUR,PRINT_CHARACTER); //black background and 2 spaces
         // printf("\e[104m  "); //blue background and 2 spaces
     }
 }
@@ -56,7 +64,7 @@ void print_row(cipher_t * cipher_to_print, int row_to_print)
 
 void print_row_binary(int row_to_print)
 {
-    for (int x = 0; x < cipher_height; x++)
+    for (int x = 0; x < cipher_width; x++)
     {
         print_pixel(bin_cipher_1234[row_to_print] & (0b10000 >> x));
     }
@@ -120,14 +128,14 @@ void draw_dual_cipher(cipher_t * left_cipher, cipher_t * right_cipher){
     fflush(stdout); // Ensure output is displayed
 }
 
-void draw_quad_cipher(cipher_t * first_cipher, cipher_t * seccond_cipher, cipher_t * third_cipher, cipher_t * fourth_cipher){
+void draw_quad_cipher(quad_display_t * quad_ciphers){
     printf("\n");
     for (int y = 0; y < cipher_height; y++)
     {
-        print_row(first_cipher, y);
-        print_row(seccond_cipher, y);
-        print_row(third_cipher, y);
-        print_row(fourth_cipher, y);
+        print_row(quad_ciphers->display_one, y);
+        print_row(quad_ciphers->display_two, y);
+        print_row(quad_ciphers->display_three, y);
+        print_row(quad_ciphers->display_four, y);
 
         printf("\e[0m"); //reset to default
         printf("\n"); //new line to start new row
@@ -137,62 +145,31 @@ void draw_quad_cipher(cipher_t * first_cipher, cipher_t * seccond_cipher, cipher
     fflush(stdout); // Ensure output is displayed
 }
 
-void create_all_on_cipher(cipher_t * output_cipher)
+//places a '1' in every position of the cipher_array
+void make_display_cipher_full(cipher_t * output_cipher)
 {
     for (int i = 0; i < cipher_len; i++)
     {
-          output_cipher->cipher_array[i] = full_cipher[i];
+          output_cipher->cipher_array[i] = 1;
     }
 }
 
-void create_cipher_from_ints(cipher_t * output_cipher, int ones_val, int tens_val, int hundreds_val, int thousands_val)
-{
-
-    for (int i = 0; i < cipher_len; i++)
-    {   
-        // print blank if all 0s, otherwise would be a cipher with a line down the middle
-        if ((ones_val == 0) & (tens_val == 0) & (hundreds_val == 0) & (thousands_val == 0))
-        {
-            output_cipher->cipher_array[i] = blank_cipher[i];
-        }
-        else
-        {
-            output_cipher->cipher_array[i] = ones_place_ciphers[ones_val][i] || 
-                                            tens_place_ciphers[tens_val][i] || 
-                                            hundreds_place_ciphers[hundreds_val][i] || 
-                                            thousands_place_ciphers[thousands_val][i];
-        }
-    }
-}
-
-void create_cipher(cipher_t * cipher)
+//places a '0' in every position of the cipher array
+void make_display_cipher_empty(cipher_t * output_cipher)
 {
     for (int i = 0; i < cipher_len; i++)
     {
-        if ((cipher->extracted_place_values.ones_place == 0) & 
-            (cipher->extracted_place_values.tens_place == 0) & 
-            (cipher->extracted_place_values.hundrends_place == 0) & 
-            (cipher->extracted_place_values.thousands_place == 0))
-        {
-            cipher->cipher_array[i] = blank_cipher[i];
-        }
-        else
-        {
-            cipher->cipher_array[i] = ones_place_ciphers[cipher->extracted_place_values.ones_place][i] || 
-                                            tens_place_ciphers[cipher->extracted_place_values.tens_place][i] || 
-                                            hundreds_place_ciphers[cipher->extracted_place_values.hundrends_place][i] || 
-                                            thousands_place_ciphers[cipher->extracted_place_values.thousands_place][i];
-        }
-    }   
+          output_cipher->cipher_array[i] = 0;
+    }
 }
 
-void fill_cipher_from_fragment(cipher_t * cipher, int digit, int start_index)
+void fill_cipher(cipher_t * cipher, int digit, int start_index)
 {
     char * final_fragment_array;
 
     if (start_index == ones_place_fragment_start_index)
     {
-        final_fragment_array = cipher_fragments[digit];
+        final_fragment_array = (char *)cipher_fragments[digit];
     }
     else if (start_index == tens_place_fragment_start_index)
     {
@@ -219,7 +196,7 @@ void fill_cipher_from_fragment(cipher_t * cipher, int digit, int start_index)
         final_fragment_array = thousands_fragment;
     }
 
-    //generic for loop called for each start_index
+    //generic for loop that works for any of the defined start_index values
     int fragment_index = 0;
     int cipher_index = 0;
     for (int i = 0; i < fragment_height; i++)
@@ -231,18 +208,17 @@ void fill_cipher_from_fragment(cipher_t * cipher, int digit, int start_index)
     }
 }
 
-void create_cipher_from_fragments(cipher_t * cipher)
+void create_cipher(cipher_t * cipher)
 {
-    for (int i = 0; i < cipher_len; i++)
-    {
-        cipher->cipher_array[i] = 0;
-    }
+    //clear the cipher, so we start with all 0s
+    make_display_cipher_empty(cipher);
        
     if ((cipher->extracted_place_values.ones_place == 0) & 
         (cipher->extracted_place_values.tens_place == 0) & 
         (cipher->extracted_place_values.hundrends_place == 0) & 
         (cipher->extracted_place_values.thousands_place == 0))
     {
+        //if all place values are 0, dont draw the center line, just return early.
         return;  
     }
     else
@@ -254,20 +230,20 @@ void create_cipher_from_fragments(cipher_t * cipher)
         }
         
         //ones place
-        fill_cipher_from_fragment(cipher, cipher->extracted_place_values.ones_place, ones_place_fragment_start_index);
+        fill_cipher(cipher, cipher->extracted_place_values.ones_place, ones_place_fragment_start_index);
 
         //tens place
-        fill_cipher_from_fragment(cipher, cipher->extracted_place_values.tens_place, tens_place_fragment_start_index);
+        fill_cipher(cipher, cipher->extracted_place_values.tens_place, tens_place_fragment_start_index);
 
         //hundres place
-        fill_cipher_from_fragment(cipher, cipher->extracted_place_values.hundrends_place, hundreds_place_fragment_start_index);
+        fill_cipher(cipher, cipher->extracted_place_values.hundrends_place, hundreds_place_fragment_start_index);
 
         //thousands place
-        fill_cipher_from_fragment(cipher, cipher->extracted_place_values.thousands_place, thousands_place_fragment_start_index);
+        fill_cipher(cipher, cipher->extracted_place_values.thousands_place, thousands_place_fragment_start_index);
     }
 }
 
-char * flip_cipher_vert(char * save_locaion, const char * input_cipher)
+void flip_cipher_vert(char * save_locaion, const char * input_cipher)
 {
     for(int y = 0; y < cipher_height; y++)
     {
@@ -278,7 +254,7 @@ char * flip_cipher_vert(char * save_locaion, const char * input_cipher)
     }
 }
 
-char * flip_cipher_hor(char * save_locaion, const char * input_cipher)
+void flip_cipher_hor(char * save_locaion, const char * input_cipher)
 {
     for(int y = 0; y < cipher_height; y++)
     {
@@ -296,6 +272,15 @@ void get_place_values(four_digit_place_values_t * output_val, int input_val)
     output_val->hundrends_place = ((input_val / 10) / 10) % 10;
     output_val->thousands_place = (((input_val / 10) / 10) / 10) % 10;
 };
+
+//take the int in the cipher struct and get place values, storing in cipher struct
+void extract_place_values_cipher(cipher_t * cipher)
+{
+    cipher->extracted_place_values.ones_place = cipher->number_to_display % 10;
+    cipher->extracted_place_values.tens_place = (cipher->number_to_display / 10) % 10;
+    cipher->extracted_place_values.hundrends_place = ((cipher->number_to_display/ 10) / 10) % 10;
+    cipher->extracted_place_values.thousands_place = (((cipher->number_to_display / 10) / 10) / 10) % 10;
+}
 
 void display_as_cipher(int input_val){
     cipher_t cipher_to_display;
@@ -338,63 +323,64 @@ void clear_quad_display(quad_display_t * display_to_clear)
 
 void display_quad_ciphers(quad_display_t * quad_display)
 {
+    cipher_t backup_blank_cipher;
+    backup_blank_cipher.number_to_display = 0000;
+    // get_place_values(&backup_blank_cipher.extracted_place_values,backup_blank_cipher.number_to_display);
+    extract_place_values_cipher(&backup_blank_cipher);
+    create_cipher(&backup_blank_cipher);
+    
     //Display 1
     if (!(quad_display->display_one == NULL))
     {
-        get_place_values(&quad_display->display_one->extracted_place_values, quad_display->display_one->number_to_display);
-        // create_cipher(quad_display->display_one);
-        create_cipher_from_fragments(quad_display->display_one);
+        // get_place_values(&quad_display->display_one->extracted_place_values, quad_display->display_one->number_to_display);
+        extract_place_values_cipher(quad_display->display_one);
+        create_cipher(quad_display->display_one);
     }
     else
     {
         printf("Display one not initialised, proceeding with blank display\n");
-        cipher_t backup_blank_cipher;
-        create_cipher_from_ints(&backup_blank_cipher,0,0,0,0);
         quad_display->display_one = &backup_blank_cipher;
     }
 
     //Display 2
     if (!(quad_display->display_two == NULL))
     {
-        get_place_values(&quad_display->display_two->extracted_place_values, quad_display->display_two->number_to_display);
+        // get_place_values(&quad_display->display_two->extracted_place_values, quad_display->display_two->number_to_display);
+        extract_place_values_cipher(quad_display->display_two);
         create_cipher(quad_display->display_two);
     }
     else
     {
-        printf("Display one not initialised, proceeding with blank display\n");
-        cipher_t backup_blank_cipher;
-        create_cipher_from_ints(&backup_blank_cipher,0,0,0,0);
+        printf("Display two not initialised, proceeding with blank display\n");
         quad_display->display_two = &backup_blank_cipher;
     }
 
     //Display 3
     if (!(quad_display->display_three == NULL))
     {
-        get_place_values(&quad_display->display_three->extracted_place_values, quad_display->display_three->number_to_display);
+        // get_place_values(&quad_display->display_three->extracted_place_values, quad_display->display_three->number_to_display);
+        extract_place_values_cipher(quad_display->display_three);
         create_cipher(quad_display->display_three);
     }
     else
     {
-        printf("Display one not initialised, proceeding with blank display\n");
-        cipher_t backup_blank_cipher;
-        create_cipher_from_ints(&backup_blank_cipher,0,0,0,0);
+        printf("Display three not initialised, proceeding with blank display\n");
         quad_display->display_three = &backup_blank_cipher;
     }
 
     //Display 4
     if (!(quad_display->display_four == NULL))
     {
-        get_place_values(&quad_display->display_four->extracted_place_values, quad_display->display_four->number_to_display);
+        // get_place_values(&quad_display->display_four->extracted_place_values, quad_display->display_four->number_to_display);
+        extract_place_values_cipher(quad_display->display_four);
         create_cipher(quad_display->display_four);
     }
     else
     {
-        printf("Display one not initialised, proceeding with blank display\n");
-        cipher_t backup_blank_cipher;
-        create_cipher_from_ints(&backup_blank_cipher,0,0,0,0);
+        printf("Display four not initialised, proceeding with blank display\n");
         quad_display->display_four = &backup_blank_cipher;
     }
-    draw_quad_cipher(quad_display->display_one, quad_display->display_two, quad_display->display_three, quad_display->display_four);
+    draw_quad_cipher(quad_display);
 }
 
 void printBinary(int num) {
@@ -415,16 +401,17 @@ void print_bin_cipher()
         // printf("bin_cipher[%d] = ",y);
         // printBinary(bin_cipher_1234[y]);
         // printf("\n");
-        for (int x = 0; x < cipher_width; x++)
-        {
-            // printf("16>>%d = ",x);
-            // printBinary(16>>x);
-            // printf("\n");
-            print_pixel(bin_cipher_1234[y] & (0b10000>>x));
-            // printf("Result of AND = ");
-            // printBinary(bin_cipher_1234[y] & (16>>x));
-            // printf("\n");
-        }
+        print_row_binary(y);
+        // for (int x = 0; x < cipher_width; x++)
+        // {
+        //     // printf("16>>%d = ",x);
+        //     // printBinary(16>>x);
+        //     // printf("\n");
+        //     print_pixel(bin_cipher_1234[y] & (0b10000>>x));
+        //     // printf("Result of AND = ");
+        //     // printBinary(bin_cipher_1234[y] & (16>>x));
+        //     // printf("\n");
+        // }
         printf("\e[0m");
         printf("\n");
     }
@@ -432,19 +419,8 @@ void print_bin_cipher()
 
 int main () 
 {
-    // cipher_t test_cipher;
-    // test_cipher.number_to_display = 1234;
-    // get_place_values(&test_cipher.extracted_place_values,test_cipher.number_to_display);
-    // printf("%4d %d %d %d %d",test_cipher.number_to_display, 
-    //     test_cipher.extracted_place_values.thousands_place, 
-    //     test_cipher.extracted_place_values.hundrends_place,
-    //     test_cipher.extracted_place_values.tens_place,
-    //     test_cipher.extracted_place_values.ones_place);
-    // create_cipher_from_fragments(&test_cipher);
-    // printf("Final:\n");
-    // draw_cipher(&test_cipher);
+    // print_bin_cipher();
     // return 0;
-    // printf("Test binary number: %d\n",);
     struct timespec start, end, sleep_ns;
 
     time_t rawtime;
