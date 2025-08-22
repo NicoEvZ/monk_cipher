@@ -229,8 +229,10 @@ void fill_cipher_section(cipher_t * cipher, int digit, int start_index)
     int cipher_index = 0;
     for (int i = 0; i < fragment_height; i++)
     {
-        cipher->cipher_array[cipher_index + start_index] = final_fragment_array[fragment_index];
-        cipher->cipher_array[cipher_index + start_index +1] = final_fragment_array[fragment_index + 1];
+        for (int j = 0; j < fragment_width; j++)
+        {
+            cipher->cipher_array[cipher_index + start_index + j] = final_fragment_array[fragment_index + j];
+        }
         cipher_index = (cipher_index + cipher_width);
         fragment_index = (fragment_index + fragment_width);
     }
@@ -253,7 +255,7 @@ void create_cipher(cipher_t * cipher)
     else
     {        
         //draw center line
-        for (int i = 2; i < cipher_len; i = (i + cipher_width))
+        for (int i = fragment_width; i < cipher_len; i = (i + cipher_width))
         {
             cipher->cipher_array[i] = 1;
         }
