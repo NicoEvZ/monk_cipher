@@ -28,6 +28,10 @@ I'm using C, and printing coloured characters to the commandline, as seems to be
 
 A lot of things I have learned in my CLI renderer project have come in handy, and allowed me to very quickly get a working software simulation working.
 
+Screenshot of simulation in action! 🕚
+
+<img width="451" height="145" alt="image" src="https://github.com/user-attachments/assets/aba68144-123b-42d4-a401-3441c61d82b3" />
+
 ## Physical Clock
 ### Display
 The component that will be critical in determining if this project becomes a real thing is the HCMS-29XX series displays.
