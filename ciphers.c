@@ -22,7 +22,7 @@ Monk Cipher is read as such:
             |
     tens    |   ones
 ------------|------------
-thousands   |   tens
+thousands   |   hundreds
             |
 
 */
