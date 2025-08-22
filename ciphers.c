@@ -28,13 +28,13 @@ thousands   |   hundreds
 */
 
 static const uint8_t bin_cipher_1234[cipher_height] =  {
-    0b01100,
-    0b10101,
-    0b00110,
-    0b00100,
-    0b00111,
-    0b00100,
-    0b11100,
+    0b0011001,
+    0b0101010,
+    0b1001100,
+    0b0001000,
+    0b0001111,
+    0b0001000,
+    0b1111000,
 };
 
 const char cipher_fragments[10][fragment_len] = 

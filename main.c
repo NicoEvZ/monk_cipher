@@ -69,11 +69,11 @@ void flip_fragment_diag(char * save_locaion, const char * input_fragment)
 //print and on or off visual indicator, based off binary value.
 void print_pixel(int binary_val)
 {   
-    if (binary_val == 1) 
+    if (binary_val > 0) 
     {
         printf("%s%s%s",PRINT_ON_COLOUR,PRINT_BG_COLOUR,PRINT_CHARACTER);
     }
-    else if (binary_val == 0)
+    else
     {
         printf("%s\e[49m%s",PRINT_OFF_COLOUR,PRINT_CHARACTER);
     }
@@ -95,7 +95,7 @@ void print_row_binary(int row_to_print)
 {
     for (int x = 0; x < cipher_width; x++)
     {
-        print_pixel(bin_cipher_1234[row_to_print] & (0b10000 >> x));
+        print_pixel(bin_cipher_1234[row_to_print] & (0b1000000 >> x));
     }
 }
 
@@ -460,9 +460,11 @@ int main ()
     signal(SIGTERM, cleanup_die);
     signal(SIGINT, cleanup_die);
 
+    print_bin_cipher();
+
     // display_as_cipher(1234);
-    // sleep(300);
-    // return 0;
+    sleep(300);
+    return 0;
 
     struct timespec start, end, sleep_ns;
 
