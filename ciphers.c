@@ -1,18 +1,18 @@
 #include "ciphers.h"
 #include <stdint.h>
 
-#define cipher_len 35
-#define cipher_width 5
+#define cipher_len 49
+#define cipher_width 7
 #define cipher_height 7
 
-#define fragment_len 6
-#define fragment_width 2
+#define fragment_len 9
+#define fragment_width 3
 #define fragment_height 3
 
-#define ones_place_fragment_start_index 3
+#define ones_place_fragment_start_index 4
 #define tens_place_fragment_start_index 0
-#define hundreds_place_fragment_start_index 23
-#define thousands_place_fragment_start_index 20
+#define hundreds_place_fragment_start_index 32
+#define thousands_place_fragment_start_index 28
 
 /*
 MONK CIPHER
@@ -41,63 +41,63 @@ const char cipher_fragments[10][fragment_len] =
 {
     //zero
     {
-        0, 0,
-        0, 0,
-        0, 0,
+        0, 0, 0,
+        0, 0, 0,
+        0, 0, 0,
     },
     // one
     {
-        1, 1,
-        0, 0,
-        0, 0,
+        1, 1, 1,
+        0, 0, 0,
+        0, 0, 0,
     },
     //two
     {
-        0, 0,
-        0, 0,
-        1, 1,
+        0, 0, 0,
+        0, 0, 0,
+        1, 1, 1,
     },
     //three
     {
-        1, 0,
-        0, 1,
-        0, 0,
+        1, 0, 0,
+        0, 1, 0,
+        0, 0, 1,
     },
     //four
     {
-        0, 0,
-        0, 1,
-        1, 0,
+        0, 0, 1,
+        0, 1, 0,
+        1, 0, 0,
     },
     //five
     {
-        1, 1,
-        0, 1,
-        1, 0,
+        1, 1, 1,
+        0, 1, 0,
+        1, 0, 0,
     },
     //six
     {
-        0, 1,
-        0, 1,
-        0, 1,
+        0, 0, 1,
+        0, 0, 1,
+        0, 0, 1,
     },
     //seven
     {
-        1, 1,
-        0, 1,
-        0, 1,
+        1, 1, 1,
+        0, 0, 1,
+        0, 0, 1,
     },
     //eight
     {
-        0, 1,
-        0, 1,
-        1, 1,
+        0, 0, 1,
+        0, 0, 1,
+        1, 1, 1,
     },
     //nine
     {
-        1, 1,
-        0, 1,
-        1, 1,
+        1, 1, 1,
+        0, 0, 1,
+        1, 1, 1,
     },
 };
 

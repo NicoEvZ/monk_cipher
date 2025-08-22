@@ -460,6 +460,10 @@ int main ()
     signal(SIGTERM, cleanup_die);
     signal(SIGINT, cleanup_die);
 
+    // display_as_cipher(1234);
+    // sleep(300);
+    // return 0;
+
     struct timespec start, end, sleep_ns;
 
     time_t rawtime;
