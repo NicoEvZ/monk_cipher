@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
+#include <signal.h>
+#include <stdlib.h>
 #include "ciphers.h"
 
 #define LOOP_INTERVAL_NSEC 1000000000L
@@ -16,7 +18,19 @@
 // #define PRINT_CHARACTER "\u25fc " //Black Mediun Square
 // #define PRINT_CHARACTER "\u25fb " //White Mediun Square
 
+//itterate over fragment and moves each point to save location without any changes
+void copy_fragment(char * save_locaion, const char * input_fragment)
+{
+    for(int y = 0; y < fragment_height; y++)
+    {
+        for(int x = 0; x < fragment_width; x++)
+        {
+            save_locaion[y * fragment_width + x] = input_fragment[y * fragment_width  + x];
+        }
+    }
+}
 
+//itterate over fragment array amd change save location position so that it appears vertically flipped
 void flip_fragment_vert(char * save_locaion, const char * input_fragment)
 {
     for(int y = 0; y < fragment_height; y++)
@@ -28,6 +42,7 @@ void flip_fragment_vert(char * save_locaion, const char * input_fragment)
     }
 }
 
+//itterate over fragment array and change save location position so that it appears horrizontally flipped
 void flip_fragment_hor(char * save_locaion, const char * input_fragment)
 {
     for(int y = 0; y < fragment_height; y++)
@@ -39,19 +54,32 @@ void flip_fragment_hor(char * save_locaion, const char * input_fragment)
     }
 }
 
-void print_pixel(int binary_val)
+//itterate over fragment array and change save location position so that it apprears flipped in both vertical and horizontal axes
+void flip_fragment_diag(char * save_locaion, const char * input_fragment)
 {
-    if (binary_val > 0) //if the value at position is 1, print yellow spaces
+    for(int y = 0; y < fragment_height; y++)
     {
-        printf("%s%s%s",PRINT_ON_COLOUR,PRINT_BG_COLOUR,PRINT_CHARACTER); //yellow background and 2 spaces
-    }
-    else 
-    {
-        printf("%s\e[49m%s",PRINT_OFF_COLOUR,PRINT_CHARACTER); //black background and 2 spaces
-        // printf("\e[104m  "); //blue background and 2 spaces
+        for(int x = 0; x < fragment_width; x++)
+        {
+            save_locaion[((fragment_height - 1) - y) * fragment_width + ((fragment_width - 1) -x)] = input_fragment[y * fragment_width  + x];
+        }
     }
 }
 
+//print and on or off visual indicator, based off binary value.
+void print_pixel(int binary_val)
+{   
+    if (binary_val == 1) 
+    {
+        printf("%s%s%s",PRINT_ON_COLOUR,PRINT_BG_COLOUR,PRINT_CHARACTER);
+    }
+    else if (binary_val == 0)
+    {
+        printf("%s\e[49m%s",PRINT_OFF_COLOUR,PRINT_CHARACTER);
+    }
+}
+
+// prints a specified row of a cipher
 void print_row(cipher_t * cipher_to_print, int row_to_print)
 {
     for (int x = 0; x < cipher_width; x++)
@@ -62,6 +90,7 @@ void print_row(cipher_t * cipher_to_print, int row_to_print)
     printf(" ");
 }
 
+//prints a specific row of a cipher defined with binary values
 void print_row_binary(int row_to_print)
 {
     for (int x = 0; x < cipher_width; x++)
@@ -70,6 +99,7 @@ void print_row_binary(int row_to_print)
     }
 }
 
+//print a specified column of a cipher
 void print_column(cipher_t * cipher_to_print, int column_to_print)
 {
     for (int y = 0; y < cipher_height; y++)
@@ -83,6 +113,7 @@ void print_column(cipher_t * cipher_to_print, int column_to_print)
     printf("\e[0m");
 }
 
+// draw a single cipher
 void draw_cipher(cipher_t * input_cipher) 
 {
     printf("\n");
@@ -97,6 +128,7 @@ void draw_cipher(cipher_t * input_cipher)
     printf("\n");
 }
 
+//draw a single fragment
 void draw_fragment(char * fragment)
 {
     printf("\n");
@@ -113,6 +145,7 @@ void draw_fragment(char * fragment)
     printf("\n");
 }
 
+//draw two ciphers, specified by individual ciphers
 void draw_dual_cipher(cipher_t * left_cipher, cipher_t * right_cipher){
     printf("\n");
     for (int y = 0; y < cipher_height; y++)
@@ -125,9 +158,10 @@ void draw_dual_cipher(cipher_t * left_cipher, cipher_t * right_cipher){
     }
     printf("\e[0m");
     printf("\n");
-    fflush(stdout); // Ensure output is displayed
+    // fflush(stdout); // Ensure output is displayed
 }
 
+//draw 4 ciphers, as part of a quad_display struct
 void draw_quad_cipher(quad_display_t * quad_ciphers){
     printf("\n");
     for (int y = 0; y < cipher_height; y++)
@@ -142,7 +176,7 @@ void draw_quad_cipher(quad_display_t * quad_ciphers){
     }
     printf("\e[0m"); //reset to default
     printf("\n");
-    fflush(stdout); // Ensure output is displayed
+    // fflush(stdout); // Ensure output is displayed
 }
 
 //places a '1' in every position of the cipher_array
@@ -163,37 +197,31 @@ void make_display_cipher_empty(cipher_t * output_cipher)
     }
 }
 
-void fill_cipher(cipher_t * cipher, int digit, int start_index)
+//fill in cipher array place value section with the correct fragment, in the correct orientation, for the digit specified 
+void fill_cipher_section(cipher_t * cipher, int digit, int start_index)
 {
-    char * final_fragment_array;
+    char final_fragment_array[fragment_len];
 
     if (start_index == ones_place_fragment_start_index)
     {
-        final_fragment_array = (char *)cipher_fragments[digit];
+        //copy the fragment to the display array
+        copy_fragment(final_fragment_array, cipher_fragments[digit]);
     }
     else if (start_index == tens_place_fragment_start_index)
     {
         //tens place = ones place with horizontal flip
-        char tens_fragment[fragment_len];
-        flip_fragment_hor(tens_fragment,cipher_fragments[digit]);
-        final_fragment_array = tens_fragment;
+        flip_fragment_hor(final_fragment_array, cipher_fragments[digit]);
 
     }
     else if (start_index == hundreds_place_fragment_start_index)
     {
         //hundreds place = ones place with vertical flip
-        char hundreds_fragment[fragment_len];
-        flip_fragment_vert(hundreds_fragment, cipher_fragments[digit]);
-        final_fragment_array = hundreds_fragment;
+        flip_fragment_vert(final_fragment_array, cipher_fragments[digit]);
     }
     else if (start_index == thousands_place_fragment_start_index)
     {
         //thousands place = ones place with vertical flip and horrizontal flip
-        char thousands_fragment_temp[fragment_len];
-        char thousands_fragment[fragment_len];
-        flip_fragment_hor(thousands_fragment_temp,cipher_fragments[digit]);
-        flip_fragment_vert(thousands_fragment, thousands_fragment_temp);
-        final_fragment_array = thousands_fragment;
+        flip_fragment_diag(final_fragment_array, cipher_fragments[digit]);
     }
 
     //generic for loop that works for any of the defined start_index values
@@ -208,6 +236,7 @@ void fill_cipher(cipher_t * cipher, int digit, int start_index)
     }
 }
 
+//sets up an empty cipher, and fills in each place value section
 void create_cipher(cipher_t * cipher)
 {
     //clear the cipher, so we start with all 0s
@@ -230,38 +259,16 @@ void create_cipher(cipher_t * cipher)
         }
         
         //ones place
-        fill_cipher(cipher, cipher->extracted_place_values.ones_place, ones_place_fragment_start_index);
+        fill_cipher_section(cipher, cipher->extracted_place_values.ones_place, ones_place_fragment_start_index);
 
         //tens place
-        fill_cipher(cipher, cipher->extracted_place_values.tens_place, tens_place_fragment_start_index);
+        fill_cipher_section(cipher, cipher->extracted_place_values.tens_place, tens_place_fragment_start_index);
 
         //hundres place
-        fill_cipher(cipher, cipher->extracted_place_values.hundrends_place, hundreds_place_fragment_start_index);
+        fill_cipher_section(cipher, cipher->extracted_place_values.hundrends_place, hundreds_place_fragment_start_index);
 
         //thousands place
-        fill_cipher(cipher, cipher->extracted_place_values.thousands_place, thousands_place_fragment_start_index);
-    }
-}
-
-void flip_cipher_vert(char * save_locaion, const char * input_cipher)
-{
-    for(int y = 0; y < cipher_height; y++)
-    {
-        for(int x = 0; x < cipher_width; x++)
-        {
-            save_locaion[((cipher_height - 1) - y) * cipher_width + x] = input_cipher[y * cipher_width  + x];
-        }
-    }
-}
-
-void flip_cipher_hor(char * save_locaion, const char * input_cipher)
-{
-    for(int y = 0; y < cipher_height; y++)
-    {
-        for(int x = 0; x < cipher_width; x++)
-        {
-            save_locaion[y * cipher_width + ((cipher_width - 1) -x)] = input_cipher[y * cipher_width  + x];
-        }
+        fill_cipher_section(cipher, cipher->extracted_place_values.thousands_place, thousands_place_fragment_start_index);
     }
 }
 
@@ -282,6 +289,7 @@ void extract_place_values_cipher(cipher_t * cipher)
     cipher->extracted_place_values.thousands_place = (((cipher->number_to_display / 10) / 10) / 10) % 10;
 }
 
+//display an interger value as a cipher
 void display_as_cipher(int input_val){
     cipher_t cipher_to_display;
     cipher_to_display.number_to_display = input_val;
@@ -290,13 +298,7 @@ void display_as_cipher(int input_val){
     draw_cipher(&cipher_to_display);
 }
 
-void sleep_ms_nanosleep(int milliseconds) {
-    struct timespec ts;
-    ts.tv_sec = milliseconds / 1000;
-    ts.tv_nsec = (milliseconds % 1000) * 1000000; // Convert remaining milliseconds to nanoseconds
-    nanosleep(&ts, NULL);
-}
-
+//display two interger values as as ciphers
 void display_as_dual_cipher(int left_val, int right_val){
     cipher_t left_cipher;
     cipher_t right_cipher;
@@ -321,18 +323,17 @@ void clear_quad_display(quad_display_t * display_to_clear)
     display_to_clear->display_four = NULL;
 }
 
+//display a quad_cipher struct
 void display_quad_ciphers(quad_display_t * quad_display)
 {
     cipher_t backup_blank_cipher;
     backup_blank_cipher.number_to_display = 0000;
-    // get_place_values(&backup_blank_cipher.extracted_place_values,backup_blank_cipher.number_to_display);
     extract_place_values_cipher(&backup_blank_cipher);
     create_cipher(&backup_blank_cipher);
     
     //Display 1
     if (!(quad_display->display_one == NULL))
     {
-        // get_place_values(&quad_display->display_one->extracted_place_values, quad_display->display_one->number_to_display);
         extract_place_values_cipher(quad_display->display_one);
         create_cipher(quad_display->display_one);
     }
@@ -345,7 +346,6 @@ void display_quad_ciphers(quad_display_t * quad_display)
     //Display 2
     if (!(quad_display->display_two == NULL))
     {
-        // get_place_values(&quad_display->display_two->extracted_place_values, quad_display->display_two->number_to_display);
         extract_place_values_cipher(quad_display->display_two);
         create_cipher(quad_display->display_two);
     }
@@ -358,7 +358,6 @@ void display_quad_ciphers(quad_display_t * quad_display)
     //Display 3
     if (!(quad_display->display_three == NULL))
     {
-        // get_place_values(&quad_display->display_three->extracted_place_values, quad_display->display_three->number_to_display);
         extract_place_values_cipher(quad_display->display_three);
         create_cipher(quad_display->display_three);
     }
@@ -371,7 +370,6 @@ void display_quad_ciphers(quad_display_t * quad_display)
     //Display 4
     if (!(quad_display->display_four == NULL))
     {
-        // get_place_values(&quad_display->display_four->extracted_place_values, quad_display->display_four->number_to_display);
         extract_place_values_cipher(quad_display->display_four);
         create_cipher(quad_display->display_four);
     }
@@ -383,7 +381,7 @@ void display_quad_ciphers(quad_display_t * quad_display)
     draw_quad_cipher(quad_display);
 }
 
-void printBinary(int num) {
+void debug_print_binary(int num) {
     // Iterate from the most significant bit to the least significant bit
     for (int i = sizeof(int) * 8 - 1; i >= 0; i--) {
         // Check if the i-th bit is set (1) or not (0)
@@ -394,33 +392,72 @@ void printBinary(int num) {
     // printf("\n"); // Print a newline character after the binary representation
 }
 
+//display a cipher specified with binary values
 void print_bin_cipher()
 {
     for (int y = 0; y < cipher_height; y++)
     {
-        // printf("bin_cipher[%d] = ",y);
-        // printBinary(bin_cipher_1234[y]);
-        // printf("\n");
         print_row_binary(y);
-        // for (int x = 0; x < cipher_width; x++)
-        // {
-        //     // printf("16>>%d = ",x);
-        //     // printBinary(16>>x);
-        //     // printf("\n");
-        //     print_pixel(bin_cipher_1234[y] & (0b10000>>x));
-        //     // printf("Result of AND = ");
-        //     // printBinary(bin_cipher_1234[y] & (16>>x));
-        //     // printf("\n");
-        // }
         printf("\e[0m");
         printf("\n");
     }
 }
 
+//initial setup fuction for displaying ciphers
+void setup(void)
+{
+    //hide cursor
+    printf("\e[?25l");
+
+    // enter alternate buffer
+    printf("\e[?1049h");
+
+    //clear alternate buffer
+    printf("\e[2J");
+
+    //set cursor to top left
+    printf("\e[H");
+
+    setbuf(stdout, NULL);
+}
+
+//cleanup function to restore terminal behavior at program exit
+void cleanup(void)
+{
+    //clean up the alternate buffer
+	printf("\e[2J");
+
+    // back to standard buffer
+    printf("\e[?1049l");
+
+    //show the cursor again
+	printf("\e[?25h");
+
+    //reset the stdout buffer to line buffering
+    setvbuf(stdout,NULL,_IOLBF,BUFSIZ);
+}
+
+void cleanup_die(int i)
+{
+    exit(i);
+}
+
+void wait_remainder(struct timespec* sleep_ns, struct timespec *end, struct timespec *start)
+{
+    sleep_ns->tv_sec = end->tv_sec - start->tv_sec;
+    sleep_ns->tv_nsec = LOOP_INTERVAL_NSEC - (end->tv_nsec - start->tv_nsec);
+    if (sleep_ns->tv_sec <= 0) {
+        nanosleep(sleep_ns, NULL);
+    }
+}
+
 int main () 
 {
-    // print_bin_cipher();
-    // return 0;
+    setup();
+    atexit(cleanup);
+    signal(SIGTERM, cleanup_die);
+    signal(SIGINT, cleanup_die);
+
     struct timespec start, end, sleep_ns;
 
     time_t rawtime;
@@ -441,14 +478,12 @@ int main ()
 
     while(1)
     {
+        //start measuring time
         clock_gettime(CLOCK_MONOTONIC, &start);
-
-        printf("\e[?25l"); //hide cursor
-        fflush(stdout); // Ensure escape codes are sent immediately
 
         time(&rawtime);
         info = localtime(&rawtime);
-        printf("Current time:\t[YYYY] [MM:DD] [HH:mm] [00:ss]\n");
+        // printf("Current time:\t[YYYY] [MM:DD] [HH:mm] [00:ss]\n");
 
         //update the int varialbes in each cipher
         year_cipher.number_to_display = 1900 + info->tm_year;
@@ -456,23 +491,26 @@ int main ()
         hours_mins_cipher.number_to_display = (info->tm_hour * 100) + info->tm_min;
         seconds_cipher.number_to_display = info->tm_sec;
 
-        // display_as_cipher(local_time_int);
-        printf("debug\t\t[%04d] [%04d]  [%04d]  [%04d]\n",  year_cipher.number_to_display,
-                                                        date_cipher.number_to_display,
-                                                        hours_mins_cipher.number_to_display, 
-                                                        seconds_cipher.number_to_display);
-        // clear_quad_display(&time_as_monk_cipher);
+        // // display_as_cipher(local_time_int);
+        // printf("debug\t\t[%04d] [%04d]  [%04d]  [%04d]\n",  year_cipher.number_to_display,
+        //                                                 date_cipher.number_to_display,
+        //                                                 hours_mins_cipher.number_to_display, 
+        //                                                 seconds_cipher.number_to_display);
         
+        //main drawing call for updated quad_display
         display_quad_ciphers(&time_as_monk_cipher);
 
+        // Ensure output is displayed
+        fflush(stdout); 
+
+        //grab another time to compare with start
         clock_gettime(CLOCK_MONOTONIC, &end);
-        sleep_ns.tv_sec = end.tv_sec - start.tv_sec;
-        sleep_ns.tv_nsec = LOOP_INTERVAL_NSEC - (end.tv_nsec - start.tv_nsec);
-        if (sleep_ns.tv_sec <= 0) {
-            nanosleep(&sleep_ns, NULL);
-        }
-        printf("\e[G\e[%dA\e[J", 11); //move cursor back %d lines, and clear
-        fflush(stdout); // Ensure output is displayed
+
+        //calculates how much time is left in the second, and will wait that much time
+        wait_remainder(&sleep_ns, &end, &start);
+        
+        //move cursor back %d lines
+        printf("\e[G\e[%dA", 9); 
     }
 
     return 0;
