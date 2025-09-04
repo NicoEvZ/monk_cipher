@@ -44,7 +44,7 @@ These are a bit pricy (That guy in the video is wearing nearly NZD$1000 on his w
 The warm yellow glow is just tantilising enough, to fork over the cash for.
 
 ### Controller
-I have a STM NUCLEO-F030R8 bouncing around that I have wanted to learn how to program for a few years.
+I have a STM NUCLEO-F446RE bouncing around that I have wanted to learn how to program for a few years.
 It will be used for initial breadboarding, and is very overkill for what this project needs.
 
 I am yet to consider what controller I will use to controll the final clock.
