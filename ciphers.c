@@ -221,7 +221,7 @@ void flip_fragment_diag(char * save_locaion, const char * input_fragment)
     }
 }
 
-void copy_bin_fragment(char * save_location, const uint8_t * input_bin_fragment)
+void copy_bin_fragment(char * save_location, const uint8_t * input_bin_fragment, int start_index)
 {
     int len_count = 0;
     for(int y = 0; y < fragment_height; y++)
@@ -233,121 +233,38 @@ void copy_bin_fragment(char * save_location, const uint8_t * input_bin_fragment)
             // printf("input_bin_fragment & (0b100000 >> %d) =\t",len_count);
             // debug_print_binary(*input_bin_fragment & (0b100000 >> len_count));
             
-            if (*input_bin_fragment & (0b100000 >> len_count))
+            // switch on start_index to know how to orient fragment before saving
+            switch (start_index)
             {
-                save_location[y * fragment_width + x] = 1;
-            }
-            else
-            {
-                save_location[y * fragment_width + x] = 0;
-            }
-            // if ((input_bin_fragment[y]) & (0b10 >> x))
-            // {
-            //     save_location[y * fragment_width + x] = 1;
-            // }
-            // else
-            // {
-            //     save_location[y * fragment_width + x] = 0;
-            // }
-
+            case ones_place_fragment_start_index:
+                // does not modify the orientation of the fragment before saving
+                save_location[y * fragment_width + x] = (*input_bin_fragment & (0b100000 >> len_count)) ? 1 : 0;
+                break;
             
+            case tens_place_fragment_start_index:
+                // flips the fragment horrizontaly before saving
+                save_location[y * fragment_width + ((fragment_width - 1) - x)] = (*input_bin_fragment & (0b100000 >> len_count)) ? 1 : 0;
+                break;
+            
+            case hundreds_place_fragment_start_index:
+                // flips the fragment verically before saving
+                save_location[((fragment_height - 1) - y) * fragment_width + x] = (*input_bin_fragment & (0b100000 >> len_count)) ? 1 : 0;
+                break;
+
+            case thousands_place_fragment_start_index:
+                // flips the fragment both veritcally and horrizontaly before saving
+                save_location[((fragment_height - 1) - y) * fragment_width + ((fragment_width - 1) - x)] = (*input_bin_fragment & (0b100000 >> len_count)) ? 1 : 0;
+                break;
+
+            default:
+                printf("Undefined start index");
+                break;
+            }
+
             // printf("save_location[%d * %d + %d] = \t\t",y,fragment_width,x);
             // debug_print_binary(save_location[y * fragment_width + x]);
             // printf("\n");
             len_count++;
-        }
-    }
-}
-
-void flip_bin_fragment_vert(char * save_location, const uint8_t * input_bin_fragment)
-{
-    int len_count = 0;
-    for(int y = 0; y < fragment_height; y++)
-    {
-        for(int x = 0; x < fragment_width; x++)
-        {
-            // printf("input_bin_fragment[%d] =\t\t\t",y);
-            // debug_print_binary(input_bin_fragment[y]);
-            // printf("input_bin_fragment[%d] & (0b10 >> %d) =\t",y,x);
-            // debug_print_binary(input_bin_fragment[y] & (0b10 >> x));
-
-            // save_location[((fragment_height - 1) - y) * fragment_width + x] = input_bin_fragment[y] & (0b10 >> x);
-
-            if ((*input_bin_fragment) & (0b100000 >> len_count))
-            {
-                save_location[((fragment_height - 1) - y) * fragment_width + x] = 1;
-            }
-            else
-            {
-                save_location[((fragment_height - 1) - y) * fragment_width + x] = 0;
-            }
-
-            // printf("save_location([(%d - 1) - %d) * %d + %d] = \t",fragment_height,y,fragment_width,x);
-            // debug_print_binary(save_location[((fragment_height - 1) - y) * fragment_width + x]);
-            // printf("\n");
-            len_count++;
-        }
-    }
-}
-
-void flip_bin_fragment_hor(char * save_location, const uint8_t * input_bin_fragment)
-{
-    int len_count = 0;
-    for(int y = 0; y < fragment_height; y++)
-    {
-        for(int x = 0; x < fragment_width; x++)
-        {
-            // printf("input_bin_fragment[%d] =\t\t\t",y);
-            // debug_print_binary(input_bin_fragment[y]);
-            // printf("input_bin_fragment[%d] & (0b10 >> %d) =\t",y,x);
-            // debug_print_binary(input_bin_fragment[y] & (0b10 >> x));
-
-            // save_location[y * fragment_width + ((fragment_width - 1) - x)] = input_bin_fragment[y] & (0b10 >> x);
-
-            if ((*input_bin_fragment) & (0b100000 >> len_count))
-            {
-                save_location[y * fragment_width + ((fragment_width - 1) - x)] = 1;
-            }
-            else
-            {
-                save_location[y * fragment_width + ((fragment_width - 1) - x)]= 0;
-            }
-
-            // printf("save_location[(%d * %d + (( %d - 1) - %d] = ",y,fragment_width,fragment_height,x);
-            // debug_print_binary(save_location[y * fragment_width + ((fragment_width - 1) - x)]);
-            // printf("\n");
-            len_count++;
-        }
-    }
-}
-
-void flip_bin_fragment_diag(char * save_location, const uint8_t * input_bin_fragment)
-{
-    int len_count = 0;
-    for(int y = 0; y < fragment_height; y++)
-    {
-        for(int x = 0; x < fragment_width; x++)
-        {
-            // printf("input_bin_fragment[%d] =\t\t\t\t\t",y);
-            // debug_print_binary(input_bin_fragment[y]);
-            // printf("input_bin_fragment[%d] & (0b10 >> %d) =\t\t\t",y,x);
-            // debug_print_binary(input_bin_fragment[y] & (0b10 >> x));
-
-            // save_location[((fragment_height - 1) - y) * fragment_width + ((fragment_width - 1) - x)] = input_bin_fragment[y] & (0b10 >> x);
-
-            if ((*input_bin_fragment) & (0b100000 >> len_count))
-            {
-                save_location[((fragment_height - 1) - y) * fragment_width + ((fragment_width - 1) - x)] = 1;
-            }
-            else
-            {
-                save_location[((fragment_height - 1) - y) * fragment_width + ((fragment_width - 1) - x)] = 0;
-            }
-
-        //     printf("save_location[((%d - 1) - %d) * %d + ((%d - 1) - %d)] = \t",fragment_height,y,fragment_width,fragment_width,x);
-        //     debug_print_binary(save_location[((fragment_height - 1) - y) * fragment_width + ((fragment_width - 1) - x)]);
-        //     printf("\n");
-        len_count++;
         }
     }
 }
@@ -563,29 +480,9 @@ void fill_bin_cipher_section(cipher_t * bin_cipher, int digit, int start_index)
 {
     char final_fragment_array[fragment_len];
 
-    if (start_index == ones_place_fragment_start_index)
-    {
-        //copy the fragment to the display array
-        copy_bin_fragment(final_fragment_array, &bin_cipher_fragments[digit]);
-    }
-    else if (start_index == tens_place_fragment_start_index)
-    {
-        //tens place = ones place with horizontal flip
-        flip_bin_fragment_hor(final_fragment_array, &bin_cipher_fragments[digit]);
-    }
-    else if (start_index == hundreds_place_fragment_start_index)
-    {
-        //hundreds place = ones place with vertical flip
-        flip_bin_fragment_vert(final_fragment_array, &bin_cipher_fragments[digit]);
-    }
-    else if (start_index == thousands_place_fragment_start_index)
-    {
-        //thousands place = ones place with vertical flip and horrizontal flip
-        flip_bin_fragment_diag(final_fragment_array, &bin_cipher_fragments[digit]);
-    }
-
-    // printf("digit: %d, start_index: %d",digit,start_index);
-    // draw_fragment(final_fragment_array);
+    // copy to temp location, as some fragments need manipulation, depending on place value
+    // (represented here by the start index)
+    copy_bin_fragment(final_fragment_array, &bin_cipher_fragments[digit], start_index);
 
     //generic for loop that works for any of the defined start_index values
     int fragment_index = 0;
