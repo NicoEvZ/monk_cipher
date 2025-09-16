@@ -68,16 +68,17 @@ void flip_fragment_diag(char * save_locaion, const char * input_fragment)
 
 void copy_bin_fragment(char * save_location, const uint8_t * input_bin_fragment)
 {
+    int len_count = 0;
     for(int y = 0; y < fragment_height; y++)
     {
         for(int x = 0; x < fragment_width; x++)
         {
-            // printf("input_bin_fragment[%d] =\t\t\t",y);
-            // debug_print_binary(input_bin_fragment[y]);
-            // printf("input_bin_fragment[%d] & (0b10 >> %d) =\t",y,x);
-            // debug_print_binary(input_bin_fragment[y] & (0b10 >> x));
+            // printf("input_bin_fragment =\t\t\t");
+            // debug_print_binary(*input_bin_fragment);
+            // printf("input_bin_fragment & (0b100000 >> %d) =\t",len_count);
+            // debug_print_binary(*input_bin_fragment & (0b100000 >> len_count));
             
-            if ((input_bin_fragment[y]) & (0b10 >> x))
+            if (*input_bin_fragment & (0b100000 >> len_count))
             {
                 save_location[y * fragment_width + x] = 1;
             }
@@ -85,17 +86,27 @@ void copy_bin_fragment(char * save_location, const uint8_t * input_bin_fragment)
             {
                 save_location[y * fragment_width + x] = 0;
             }
+            // if ((input_bin_fragment[y]) & (0b10 >> x))
+            // {
+            //     save_location[y * fragment_width + x] = 1;
+            // }
+            // else
+            // {
+            //     save_location[y * fragment_width + x] = 0;
+            // }
 
             
             // printf("save_location[%d * %d + %d] = \t\t",y,fragment_width,x);
             // debug_print_binary(save_location[y * fragment_width + x]);
             // printf("\n");
+            len_count++;
         }
     }
 }
 
 void flip_bin_fragment_vert(char * save_location, const uint8_t * input_bin_fragment)
 {
+    int len_count = 0;
     for(int y = 0; y < fragment_height; y++)
     {
         for(int x = 0; x < fragment_width; x++)
@@ -107,7 +118,7 @@ void flip_bin_fragment_vert(char * save_location, const uint8_t * input_bin_frag
 
             // save_location[((fragment_height - 1) - y) * fragment_width + x] = input_bin_fragment[y] & (0b10 >> x);
 
-            if ((input_bin_fragment[y]) & (0b10 >> x))
+            if ((*input_bin_fragment) & (0b100000 >> len_count))
             {
                 save_location[((fragment_height - 1) - y) * fragment_width + x] = 1;
             }
@@ -119,12 +130,14 @@ void flip_bin_fragment_vert(char * save_location, const uint8_t * input_bin_frag
             // printf("save_location([(%d - 1) - %d) * %d + %d] = \t",fragment_height,y,fragment_width,x);
             // debug_print_binary(save_location[((fragment_height - 1) - y) * fragment_width + x]);
             // printf("\n");
+            len_count++;
         }
     }
 }
 
 void flip_bin_fragment_hor(char * save_location, const uint8_t * input_bin_fragment)
 {
+    int len_count = 0;
     for(int y = 0; y < fragment_height; y++)
     {
         for(int x = 0; x < fragment_width; x++)
@@ -136,7 +149,7 @@ void flip_bin_fragment_hor(char * save_location, const uint8_t * input_bin_fragm
 
             // save_location[y * fragment_width + ((fragment_width - 1) - x)] = input_bin_fragment[y] & (0b10 >> x);
 
-            if ((input_bin_fragment[y]) & (0b10 >> x))
+            if ((*input_bin_fragment) & (0b100000 >> len_count))
             {
                 save_location[y * fragment_width + ((fragment_width - 1) - x)] = 1;
             }
@@ -148,12 +161,14 @@ void flip_bin_fragment_hor(char * save_location, const uint8_t * input_bin_fragm
             // printf("save_location[(%d * %d + (( %d - 1) - %d] = ",y,fragment_width,fragment_height,x);
             // debug_print_binary(save_location[y * fragment_width + ((fragment_width - 1) - x)]);
             // printf("\n");
+            len_count++;
         }
     }
 }
 
 void flip_bin_fragment_diag(char * save_location, const uint8_t * input_bin_fragment)
 {
+    int len_count = 0;
     for(int y = 0; y < fragment_height; y++)
     {
         for(int x = 0; x < fragment_width; x++)
@@ -165,7 +180,7 @@ void flip_bin_fragment_diag(char * save_location, const uint8_t * input_bin_frag
 
             // save_location[((fragment_height - 1) - y) * fragment_width + ((fragment_width - 1) - x)] = input_bin_fragment[y] & (0b10 >> x);
 
-            if ((input_bin_fragment[y]) & (0b10 >> x))
+            if ((*input_bin_fragment) & (0b100000 >> len_count))
             {
                 save_location[((fragment_height - 1) - y) * fragment_width + ((fragment_width - 1) - x)] = 1;
             }
@@ -177,6 +192,7 @@ void flip_bin_fragment_diag(char * save_location, const uint8_t * input_bin_frag
         //     printf("save_location[((%d - 1) - %d) * %d + ((%d - 1) - %d)] = \t",fragment_height,y,fragment_width,fragment_width,x);
         //     debug_print_binary(save_location[((fragment_height - 1) - y) * fragment_width + ((fragment_width - 1) - x)]);
         //     printf("\n");
+        len_count++;
         }
     }
 }
@@ -395,22 +411,22 @@ void fill_bin_cipher_section(cipher_t * bin_cipher, int digit, int start_index)
     if (start_index == ones_place_fragment_start_index)
     {
         //copy the fragment to the display array
-        copy_bin_fragment(final_fragment_array, bin_cipher_fragments[digit]);
+        copy_bin_fragment(final_fragment_array, &bin_cipher_fragments[digit]);
     }
     else if (start_index == tens_place_fragment_start_index)
     {
         //tens place = ones place with horizontal flip
-        flip_bin_fragment_hor(final_fragment_array, bin_cipher_fragments[digit]);
+        flip_bin_fragment_hor(final_fragment_array, &bin_cipher_fragments[digit]);
     }
     else if (start_index == hundreds_place_fragment_start_index)
     {
         //hundreds place = ones place with vertical flip
-        flip_bin_fragment_vert(final_fragment_array, bin_cipher_fragments[digit]);
+        flip_bin_fragment_vert(final_fragment_array, &bin_cipher_fragments[digit]);
     }
     else if (start_index == thousands_place_fragment_start_index)
     {
         //thousands place = ones place with vertical flip and horrizontal flip
-        flip_bin_fragment_diag(final_fragment_array, bin_cipher_fragments[digit]);
+        flip_bin_fragment_diag(final_fragment_array, &bin_cipher_fragments[digit]);
     }
 
     // printf("digit: %d, start_index: %d",digit,start_index);
@@ -574,6 +590,63 @@ void display_quad_ciphers(quad_display_t * quad_display)
     draw_quad_cipher(quad_display);
 }
 
+void display_quad_ciphers_bin(quad_display_t * quad_display)
+{
+    cipher_t backup_blank_cipher;
+    backup_blank_cipher.number_to_display = 0000;
+    extract_place_values_cipher(&backup_blank_cipher);
+    create_cipher(&backup_blank_cipher);
+    
+    //Display 1
+    if (!(quad_display->display_one == NULL))
+    {
+        extract_place_values_cipher(quad_display->display_one);
+        create_binary_cipher(quad_display->display_one);
+    }
+    else
+    {
+        printf("Display one not initialised, proceeding with blank display\n");
+        quad_display->display_one = &backup_blank_cipher;
+    }
+
+    //Display 2
+    if (!(quad_display->display_two == NULL))
+    {
+        extract_place_values_cipher(quad_display->display_two);
+        create_binary_cipher(quad_display->display_two);
+    }
+    else
+    {
+        printf("Display two not initialised, proceeding with blank display\n");
+        quad_display->display_two = &backup_blank_cipher;
+    }
+
+    //Display 3
+    if (!(quad_display->display_three == NULL))
+    {
+        extract_place_values_cipher(quad_display->display_three);
+        create_binary_cipher(quad_display->display_three);
+    }
+    else
+    {
+        printf("Display three not initialised, proceeding with blank display\n");
+        quad_display->display_three = &backup_blank_cipher;
+    }
+
+    //Display 4
+    if (!(quad_display->display_four == NULL))
+    {
+        extract_place_values_cipher(quad_display->display_four);
+        create_binary_cipher(quad_display->display_four);
+    }
+    else
+    {
+        printf("Display four not initialised, proceeding with blank display\n");
+        quad_display->display_four = &backup_blank_cipher;
+    }
+    draw_quad_cipher(quad_display);
+}
+
 void debug_print_binary(int num) {
     // Iterate from the most significant bit to the least significant bit
     for (int i = sizeof(int) * 8 - 1; i >= 0; i--) {
@@ -652,22 +725,22 @@ int main ()
     signal(SIGINT, cleanup_die);
 
     //start of binary cipher testing
-    cipher_t binary_cipher;
+    // cipher_t binary_cipher;
 
-    for (int i = 0; i < 10; i++)
-    {
-        binary_cipher.number_to_display = 1111 * i;
-        extract_place_values_cipher(&binary_cipher);
-        create_binary_cipher(&binary_cipher);
-        draw_cipher(&binary_cipher);
-        fflush(stdout);
-    }
-    while (1)
-    {
-        /* code */
-    }
+    // for (int i = 0; i < 10; i++)
+    // {
+    //     binary_cipher.number_to_display = 1111 * i;
+    //     extract_place_values_cipher(&binary_cipher);
+    //     create_binary_cipher(&binary_cipher);
+    //     draw_cipher(&binary_cipher);
+    //     fflush(stdout);
+    // }
+    // while (1)
+    // {
+    //     /* code */
+    // }
     
-    return 0;
+    // return 0;
     //end of binary cipher testing
     
 
@@ -711,7 +784,7 @@ int main ()
         //                                                 seconds_cipher.number_to_display);
         
         //main drawing call for updated quad_display
-        display_quad_ciphers(&time_as_monk_cipher);
+        display_quad_ciphers_bin(&time_as_monk_cipher);
 
         // Ensure output is displayed
         fflush(stdout); 
