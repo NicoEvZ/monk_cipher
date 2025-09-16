@@ -24,6 +24,70 @@ static const uint8_t bin_cipher_1234[cipher_height] =  {
     0b11100,
 };
 
+const uint8_t bin_cipher_fragments[10][fragment_height] = 
+{
+    // zero
+    {
+        0b00,
+        0b00,
+        0b00,
+    },
+    // one
+    {
+        0b11,
+        0b00,
+        0b00,
+    },
+    // two
+    {
+        0b00,
+        0b00,
+        0b11,
+    },
+    // three
+    {
+        0b10,
+        0b01,
+        0b00,
+    },
+    // four
+    {
+        0b00,
+        0b01,
+        0b10,
+    },
+    // five
+    {
+        0b11,
+        0b01,
+        0b10,
+    },
+    // six
+    {
+        0b01,
+        0b01,
+        0b01,
+    },
+    // seven
+    {
+        0b11,
+        0b01,
+        0b01,
+    },
+    // eight
+    {
+        0b01,
+        0b01,
+        0b11,
+    },
+    // nine
+    {
+        0b11,
+        0b01,
+        0b11,
+    }
+};
+
 const char cipher_fragments[10][fragment_len] = 
 {
     //zero

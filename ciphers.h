@@ -16,6 +16,7 @@
 #define thousands_place_fragment_start_index 20
 
 static const uint8_t bin_cipher_1234[cipher_height];
+extern const uint8_t bin_cipher_fragments[10][fragment_height];
 extern const char cipher_fragments[10][fragment_len];
 
 typedef struct four_digit_place_values

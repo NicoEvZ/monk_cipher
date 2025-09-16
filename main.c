@@ -19,13 +19,13 @@
 // #define PRINT_CHARACTER "\u25fb " //White Mediun Square
 
 //itterate over fragment and moves each point to save location without any changes
-void copy_fragment(char * save_locaion, const char * input_fragment)
+void copy_fragment(char * save_location, const char * input_fragment)
 {
     for(int y = 0; y < fragment_height; y++)
     {
         for(int x = 0; x < fragment_width; x++)
         {
-            save_locaion[y * fragment_width + x] = input_fragment[y * fragment_width  + x];
+            save_location[y * fragment_width + x] = input_fragment[y * fragment_width  + x];
         }
     }
 }
@@ -62,6 +62,121 @@ void flip_fragment_diag(char * save_locaion, const char * input_fragment)
         for(int x = 0; x < fragment_width; x++)
         {
             save_locaion[((fragment_height - 1) - y) * fragment_width + ((fragment_width - 1) -x)] = input_fragment[y * fragment_width  + x];
+        }
+    }
+}
+
+void copy_bin_fragment(char * save_location, const uint8_t * input_bin_fragment)
+{
+    for(int y = 0; y < fragment_height; y++)
+    {
+        for(int x = 0; x < fragment_width; x++)
+        {
+            // printf("input_bin_fragment[%d] =\t\t\t",y);
+            // debug_print_binary(input_bin_fragment[y]);
+            // printf("input_bin_fragment[%d] & (0b10 >> %d) =\t",y,x);
+            // debug_print_binary(input_bin_fragment[y] & (0b10 >> x));
+            
+            if ((input_bin_fragment[y]) & (0b10 >> x))
+            {
+                save_location[y * fragment_width + x] = 1;
+            }
+            else
+            {
+                save_location[y * fragment_width + x] = 0;
+            }
+
+            
+            // printf("save_location[%d * %d + %d] = \t\t",y,fragment_width,x);
+            // debug_print_binary(save_location[y * fragment_width + x]);
+            // printf("\n");
+        }
+    }
+}
+
+void flip_bin_fragment_vert(char * save_location, const uint8_t * input_bin_fragment)
+{
+    for(int y = 0; y < fragment_height; y++)
+    {
+        for(int x = 0; x < fragment_width; x++)
+        {
+            // printf("input_bin_fragment[%d] =\t\t\t",y);
+            // debug_print_binary(input_bin_fragment[y]);
+            // printf("input_bin_fragment[%d] & (0b10 >> %d) =\t",y,x);
+            // debug_print_binary(input_bin_fragment[y] & (0b10 >> x));
+
+            // save_location[((fragment_height - 1) - y) * fragment_width + x] = input_bin_fragment[y] & (0b10 >> x);
+
+            if ((input_bin_fragment[y]) & (0b10 >> x))
+            {
+                save_location[((fragment_height - 1) - y) * fragment_width + x] = 1;
+            }
+            else
+            {
+                save_location[((fragment_height - 1) - y) * fragment_width + x] = 0;
+            }
+
+            // printf("save_location([(%d - 1) - %d) * %d + %d] = \t",fragment_height,y,fragment_width,x);
+            // debug_print_binary(save_location[((fragment_height - 1) - y) * fragment_width + x]);
+            // printf("\n");
+        }
+    }
+}
+
+void flip_bin_fragment_hor(char * save_location, const uint8_t * input_bin_fragment)
+{
+    for(int y = 0; y < fragment_height; y++)
+    {
+        for(int x = 0; x < fragment_width; x++)
+        {
+            // printf("input_bin_fragment[%d] =\t\t\t",y);
+            // debug_print_binary(input_bin_fragment[y]);
+            // printf("input_bin_fragment[%d] & (0b10 >> %d) =\t",y,x);
+            // debug_print_binary(input_bin_fragment[y] & (0b10 >> x));
+
+            // save_location[y * fragment_width + ((fragment_width - 1) - x)] = input_bin_fragment[y] & (0b10 >> x);
+
+            if ((input_bin_fragment[y]) & (0b10 >> x))
+            {
+                save_location[y * fragment_width + ((fragment_width - 1) - x)] = 1;
+            }
+            else
+            {
+                save_location[y * fragment_width + ((fragment_width - 1) - x)]= 0;
+            }
+
+            // printf("save_location[(%d * %d + (( %d - 1) - %d] = ",y,fragment_width,fragment_height,x);
+            // debug_print_binary(save_location[y * fragment_width + ((fragment_width - 1) - x)]);
+            // printf("\n");
+        }
+    }
+}
+
+void flip_bin_fragment_diag(char * save_location, const uint8_t * input_bin_fragment)
+{
+    for(int y = 0; y < fragment_height; y++)
+    {
+        for(int x = 0; x < fragment_width; x++)
+        {
+            // printf("input_bin_fragment[%d] =\t\t\t\t\t",y);
+            // debug_print_binary(input_bin_fragment[y]);
+            // printf("input_bin_fragment[%d] & (0b10 >> %d) =\t\t\t",y,x);
+            // debug_print_binary(input_bin_fragment[y] & (0b10 >> x));
+
+            // save_location[((fragment_height - 1) - y) * fragment_width + ((fragment_width - 1) - x)] = input_bin_fragment[y] & (0b10 >> x);
+
+            if ((input_bin_fragment[y]) & (0b10 >> x))
+            {
+                save_location[((fragment_height - 1) - y) * fragment_width + ((fragment_width - 1) - x)] = 1;
+            }
+            else
+            {
+                save_location[((fragment_height - 1) - y) * fragment_width + ((fragment_width - 1) - x)] = 0;
+            }
+
+        //     printf("save_location[((%d - 1) - %d) * %d + ((%d - 1) - %d)] = \t",fragment_height,y,fragment_width,fragment_width,x);
+        //     debug_print_binary(save_location[((fragment_height - 1) - y) * fragment_width + ((fragment_width - 1) - x)]);
+        //     printf("\n");
         }
     }
 }
@@ -211,7 +326,6 @@ void fill_cipher_section(cipher_t * cipher, int digit, int start_index)
     {
         //tens place = ones place with horizontal flip
         flip_fragment_hor(final_fragment_array, cipher_fragments[digit]);
-
     }
     else if (start_index == hundreds_place_fragment_start_index)
     {
@@ -272,6 +386,83 @@ void create_cipher(cipher_t * cipher)
         //thousands place
         fill_cipher_section(cipher, cipher->extracted_place_values.thousands_place, thousands_place_fragment_start_index);
     }
+}
+
+void fill_bin_cipher_section(cipher_t * bin_cipher, int digit, int start_index)
+{
+    char final_fragment_array[fragment_len];
+
+    if (start_index == ones_place_fragment_start_index)
+    {
+        //copy the fragment to the display array
+        copy_bin_fragment(final_fragment_array, bin_cipher_fragments[digit]);
+    }
+    else if (start_index == tens_place_fragment_start_index)
+    {
+        //tens place = ones place with horizontal flip
+        flip_bin_fragment_hor(final_fragment_array, bin_cipher_fragments[digit]);
+    }
+    else if (start_index == hundreds_place_fragment_start_index)
+    {
+        //hundreds place = ones place with vertical flip
+        flip_bin_fragment_vert(final_fragment_array, bin_cipher_fragments[digit]);
+    }
+    else if (start_index == thousands_place_fragment_start_index)
+    {
+        //thousands place = ones place with vertical flip and horrizontal flip
+        flip_bin_fragment_diag(final_fragment_array, bin_cipher_fragments[digit]);
+    }
+
+    // printf("digit: %d, start_index: %d",digit,start_index);
+    // draw_fragment(final_fragment_array);
+
+    //generic for loop that works for any of the defined start_index values
+    int fragment_index = 0;
+    int bin_cipher_index = 0;
+    for (int i = 0; i < fragment_height; i++)
+    {
+        for (int j = 0; j < fragment_width; j++)
+        {
+            bin_cipher->cipher_array[bin_cipher_index + start_index + j] = final_fragment_array[fragment_index + j];
+        }
+        bin_cipher_index = (bin_cipher_index + cipher_width);
+        fragment_index = (fragment_index + fragment_width);
+    }
+
+}
+
+void create_binary_cipher(cipher_t * bin_cipher)
+{
+    make_display_cipher_empty(bin_cipher);
+    if ((bin_cipher->extracted_place_values.ones_place == 0) & 
+        (bin_cipher->extracted_place_values.tens_place == 0) & 
+        (bin_cipher->extracted_place_values.hundrends_place == 0) & 
+        (bin_cipher->extracted_place_values.thousands_place == 0))
+    {
+        //if all place values are 0, dont draw the center line, just return early.
+        return;  
+    }
+    else
+    {
+        //draw center line
+        for (int i = fragment_width; i < cipher_len; i = (i + cipher_width))
+        {
+            bin_cipher->cipher_array[i] = 1;
+        }
+
+        fill_bin_cipher_section(bin_cipher, bin_cipher->extracted_place_values.ones_place, ones_place_fragment_start_index);
+
+        //tens place
+        fill_bin_cipher_section(bin_cipher, bin_cipher->extracted_place_values.tens_place, tens_place_fragment_start_index);
+        
+        //hundres place
+        fill_bin_cipher_section(bin_cipher, bin_cipher->extracted_place_values.hundrends_place, hundreds_place_fragment_start_index);
+
+        //thousands place
+        fill_bin_cipher_section(bin_cipher, bin_cipher->extracted_place_values.thousands_place, thousands_place_fragment_start_index);
+
+    }
+
 }
 
 void get_place_values(four_digit_place_values_t * output_val, int input_val)
@@ -391,7 +582,7 @@ void debug_print_binary(int num) {
         // & 1 then isolates that bit
         printf("%d", (num >> i) & 1);
     }
-    // printf("\n"); // Print a newline character after the binary representation
+    printf("\n"); // Print a newline character after the binary representation
 }
 
 //display a cipher specified with binary values
@@ -459,6 +650,26 @@ int main ()
     atexit(cleanup);
     signal(SIGTERM, cleanup_die);
     signal(SIGINT, cleanup_die);
+
+    //start of binary cipher testing
+    cipher_t binary_cipher;
+
+    for (int i = 0; i < 10; i++)
+    {
+        binary_cipher.number_to_display = 1111 * i;
+        extract_place_values_cipher(&binary_cipher);
+        create_binary_cipher(&binary_cipher);
+        draw_cipher(&binary_cipher);
+        fflush(stdout);
+    }
+    while (1)
+    {
+        /* code */
+    }
+    
+    return 0;
+    //end of binary cipher testing
+    
 
     struct timespec start, end, sleep_ns;
 
