@@ -369,10 +369,10 @@ void draw_quad_cipher(quad_display_t * quad_ciphers){
     printf("\n");
     for (int y = 0; y < cipher_height; y++)
     {
-        print_row(quad_ciphers->display_one, y);
-        print_row(quad_ciphers->display_two, y);
-        print_row(quad_ciphers->display_three, y);
-        print_row(quad_ciphers->display_four, y);
+        print_row(quad_ciphers->display[0], y);
+        print_row(quad_ciphers->display[1], y);
+        print_row(quad_ciphers->display[2], y);
+        print_row(quad_ciphers->display[3], y);
 
         printf("\e[0m"); //reset to default
         printf("\n"); //new line to start new row
@@ -518,15 +518,16 @@ void create_binary_cipher(cipher_t * bin_cipher)
             bin_cipher->cipher_array[i] = 1;
         }
 
+        // ones place
         fill_bin_cipher_section(bin_cipher, bin_cipher->extracted_place_values.ones_place, ones_place_fragment_start_index);
 
-        //tens place
+        // tens place
         fill_bin_cipher_section(bin_cipher, bin_cipher->extracted_place_values.tens_place, tens_place_fragment_start_index);
         
-        //hundres place
+        // hundres place
         fill_bin_cipher_section(bin_cipher, bin_cipher->extracted_place_values.hundrends_place, hundreds_place_fragment_start_index);
 
-        //thousands place
+        // thousands place
         fill_bin_cipher_section(bin_cipher, bin_cipher->extracted_place_values.thousands_place, thousands_place_fragment_start_index);
 
     }
@@ -578,10 +579,10 @@ void display_as_dual_cipher(int left_val, int right_val){
 //nulls the pointer for each display
 void clear_quad_display(quad_display_t * display_to_clear) 
 {
-    display_to_clear->display_one = NULL;
-    display_to_clear->display_two = NULL;
-    display_to_clear->display_three = NULL;
-    display_to_clear->display_four = NULL;
+    display_to_clear->display[0] = NULL;
+    display_to_clear->display[1] = NULL;
+    display_to_clear->display[2] = NULL;
+    display_to_clear->display[3] = NULL;
 }
 
 //display a quad_cipher struct
@@ -592,53 +593,20 @@ void display_quad_ciphers(quad_display_t * quad_display)
     extract_place_values_cipher(&backup_blank_cipher);
     create_cipher(&backup_blank_cipher);
     
-    //Display 1
-    if (!(quad_display->display_one == NULL))
+    for (int i = 0; i < 4; i++)
     {
-        extract_place_values_cipher(quad_display->display_one);
-        create_cipher(quad_display->display_one);
+        if (!(quad_display->display[i] == NULL))
+        {
+            extract_place_values_cipher(quad_display->display[i]);
+            create_cipher(quad_display->display[i]);
+        }
+        else
+        {
+            printf("Display %d not initialised, proceeding with blank display\n",i);
+            quad_display->display[i] = &backup_blank_cipher;
+        }
     }
-    else
-    {
-        printf("Display one not initialised, proceeding with blank display\n");
-        quad_display->display_one = &backup_blank_cipher;
-    }
-
-    //Display 2
-    if (!(quad_display->display_two == NULL))
-    {
-        extract_place_values_cipher(quad_display->display_two);
-        create_cipher(quad_display->display_two);
-    }
-    else
-    {
-        printf("Display two not initialised, proceeding with blank display\n");
-        quad_display->display_two = &backup_blank_cipher;
-    }
-
-    //Display 3
-    if (!(quad_display->display_three == NULL))
-    {
-        extract_place_values_cipher(quad_display->display_three);
-        create_cipher(quad_display->display_three);
-    }
-    else
-    {
-        printf("Display three not initialised, proceeding with blank display\n");
-        quad_display->display_three = &backup_blank_cipher;
-    }
-
-    //Display 4
-    if (!(quad_display->display_four == NULL))
-    {
-        extract_place_values_cipher(quad_display->display_four);
-        create_cipher(quad_display->display_four);
-    }
-    else
-    {
-        printf("Display four not initialised, proceeding with blank display\n");
-        quad_display->display_four = &backup_blank_cipher;
-    }
+    
     draw_quad_cipher(quad_display);
 }
 
@@ -649,53 +617,22 @@ void display_quad_ciphers_bin(quad_display_t * quad_display)
     extract_place_values_cipher(&backup_blank_cipher);
     create_cipher(&backup_blank_cipher);
     
-    //Display 1
-    if (!(quad_display->display_one == NULL))
+    // iterate over all displays in quad display, and if initialised, 
+    // then create the cipher for that display
+    for (int i = 0; i < 4; i++)
     {
-        extract_place_values_cipher(quad_display->display_one);
-        create_binary_cipher(quad_display->display_one);
+        if (!(quad_display->display[i] == NULL))
+        {
+            extract_place_values_cipher(quad_display->display[i]);
+            create_binary_cipher(quad_display->display[i]);
+        }
+        else
+        {
+            printf("Display %d not initialised, proceeding with blank display\n",i+1);
+            quad_display->display[i] = &backup_blank_cipher;
+        }
     }
-    else
-    {
-        printf("Display one not initialised, proceeding with blank display\n");
-        quad_display->display_one = &backup_blank_cipher;
-    }
-
-    //Display 2
-    if (!(quad_display->display_two == NULL))
-    {
-        extract_place_values_cipher(quad_display->display_two);
-        create_binary_cipher(quad_display->display_two);
-    }
-    else
-    {
-        printf("Display two not initialised, proceeding with blank display\n");
-        quad_display->display_two = &backup_blank_cipher;
-    }
-
-    //Display 3
-    if (!(quad_display->display_three == NULL))
-    {
-        extract_place_values_cipher(quad_display->display_three);
-        create_binary_cipher(quad_display->display_three);
-    }
-    else
-    {
-        printf("Display three not initialised, proceeding with blank display\n");
-        quad_display->display_three = &backup_blank_cipher;
-    }
-
-    //Display 4
-    if (!(quad_display->display_four == NULL))
-    {
-        extract_place_values_cipher(quad_display->display_four);
-        create_binary_cipher(quad_display->display_four);
-    }
-    else
-    {
-        printf("Display four not initialised, proceeding with blank display\n");
-        quad_display->display_four = &backup_blank_cipher;
-    }
+    // drawing to the screen
     draw_quad_cipher(quad_display);
 }
 

@@ -38,7 +38,7 @@ typedef struct cipher
 
 typedef struct quad_display
 {
-    cipher_t *display_one, *display_two, *display_three, *display_four;
+    cipher_t* display[4];
 }quad_display_t;
 
 void display_quad_ciphers_bin(quad_display_t * quad_display);

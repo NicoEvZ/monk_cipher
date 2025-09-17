@@ -97,10 +97,10 @@ int main ()
     cipher_t hours_mins_cipher;
     cipher_t seconds_cipher;
 
-    time_as_monk_cipher.display_one = &year_cipher;
-    time_as_monk_cipher.display_two = &date_cipher;
-    time_as_monk_cipher.display_three = &hours_mins_cipher;
-    time_as_monk_cipher.display_four = &seconds_cipher;
+    time_as_monk_cipher.display[0] = &year_cipher;
+    time_as_monk_cipher.display[1] = &date_cipher;
+    time_as_monk_cipher.display[2] = &hours_mins_cipher;
+    time_as_monk_cipher.display[3] = &seconds_cipher;
 
     while(1)
     {
