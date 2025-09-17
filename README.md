@@ -26,7 +26,7 @@ First step of this project is to have a simulation of the display running in sof
 
 I'm using C, and printing coloured characters to the commandline, as seems to be becoming my style...
 
-A lot of things I have learned in my CLI renderer project have come in handy, and allowed me to very quickly get a working software simulation working.
+A lot of things I have learned in my CLI renderer project have come in handy, and allowed me to very quickly get a working software simulation.
 
 Screenshot of simulation in action! 🕚
 
@@ -34,7 +34,7 @@ Screenshot of simulation in action! 🕚
 
 ## Physical Clock
 ### Display
-The component that will be critical in determining if this project becomes a real thing is the HCMS-29XX series displays.
+The component that is driving the motivation for this whole project is the HCMS-29XX series displays.
 
 These have 4 distinct character displays, featuring a 5x7 LED matrix.
 This is *just* enough pixels to render a pretty faithful and legible rendition of the ciphers, without taking too many creative liberties.
