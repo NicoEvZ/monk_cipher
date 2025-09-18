@@ -1,4 +1,5 @@
 #pragma once
+#include<stdint.h>
 
 #define cipher_len 35
 #define cipher_width 5
@@ -31,7 +32,7 @@ typedef struct four_digit_place_values
 
 typedef struct cipher
 {
-    char cipher_array[cipher_len];
+    uint8_t cipher_array[cipher_len];
     int number_to_display;
     four_digit_place_values_t extracted_place_values;
 } cipher_t;
