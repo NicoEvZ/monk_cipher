@@ -279,28 +279,28 @@ void fill_bin_cipher_section(cipher_t * bin_cipher, int digit, int start_index)
 
 }
 
-void get_place_values(four_digit_place_values_t * output_val, int input_val)
+void get_place_values(uint8_t output_val[4], int input_val)
 {
-    output_val->ones_place = input_val % 10;
-    output_val->tens_place = (input_val / 10) % 10;
-    output_val->hundrends_place = ((input_val / 10) / 10) % 10;
-    output_val->thousands_place = (((input_val / 10) / 10) / 10) % 10;
+    output_val[ONES_PLACE] = (uint8_t)(input_val % 10);
+    output_val[TENS_PLACE] = (uint8_t)((input_val / 10) % 10);
+    output_val[HUNDREDS_PLACE] = (uint8_t)(((input_val / 10) / 10) % 10);
+    output_val[THOUSANDS_PLACE] = (uint8_t)((((input_val / 10) / 10) / 10) % 10);
 };
 
 //take the int in the cipher struct and get place values, storing in cipher struct
 void extract_place_values_cipher(cipher_t * cipher)
 {
-    get_place_values(&cipher->extracted_place_values,cipher->number_to_display);
+    get_place_values(cipher->place_values,cipher->number_to_display);
 }
 
 void create_binary_cipher(cipher_t * bin_cipher)
 {
     extract_place_values_cipher(bin_cipher);
     make_display_cipher_empty(bin_cipher);
-    if ((bin_cipher->extracted_place_values.ones_place == 0) & 
-        (bin_cipher->extracted_place_values.tens_place == 0) & 
-        (bin_cipher->extracted_place_values.hundrends_place == 0) & 
-        (bin_cipher->extracted_place_values.thousands_place == 0))
+    if ((bin_cipher->place_values[ONES_PLACE] == 0) & 
+        (bin_cipher->place_values[TENS_PLACE] == 0) & 
+        (bin_cipher->place_values[HUNDREDS_PLACE] == 0) & 
+        (bin_cipher->place_values[THOUSANDS_PLACE] == 0))
     {
         //if all place values are 0, dont draw the center line, just return early.
         return;  
@@ -314,16 +314,16 @@ void create_binary_cipher(cipher_t * bin_cipher)
         }
 
         // ones place
-        fill_bin_cipher_section(bin_cipher, bin_cipher->extracted_place_values.ones_place, ones_place_fragment_start_index);
+        fill_bin_cipher_section(bin_cipher, bin_cipher->place_values[ONES_PLACE], ones_place_fragment_start_index);
 
         // tens place
-        fill_bin_cipher_section(bin_cipher, bin_cipher->extracted_place_values.tens_place, tens_place_fragment_start_index);
+        fill_bin_cipher_section(bin_cipher, bin_cipher->place_values[TENS_PLACE], tens_place_fragment_start_index);
         
         // hundres place
-        fill_bin_cipher_section(bin_cipher, bin_cipher->extracted_place_values.hundrends_place, hundreds_place_fragment_start_index);
+        fill_bin_cipher_section(bin_cipher, bin_cipher->place_values[HUNDREDS_PLACE], hundreds_place_fragment_start_index);
 
         // thousands place
-        fill_bin_cipher_section(bin_cipher, bin_cipher->extracted_place_values.thousands_place, thousands_place_fragment_start_index);
+        fill_bin_cipher_section(bin_cipher, bin_cipher->place_values[THOUSANDS_PLACE], thousands_place_fragment_start_index);
 
     }
 

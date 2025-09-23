@@ -25,16 +25,19 @@
 // #define PRINT_CHARACTER "\u25fc " //Black Mediun Square
 // #define PRINT_CHARACTER "\u25fb " //White Mediun Square
 
-typedef struct four_digit_place_values
+enum place_value
 {
-   int ones_place, tens_place, hundrends_place, thousands_place;
-} four_digit_place_values_t;
+    ONES_PLACE = 0,
+    TENS_PLACE,
+    HUNDREDS_PLACE,
+    THOUSANDS_PLACE
+};
 
 typedef struct cipher
 {
     uint8_t cipher_array[cipher_len];
     int number_to_display;
-    four_digit_place_values_t extracted_place_values;
+    uint8_t place_values[4];
 } cipher_t;
 
 typedef struct quad_display
