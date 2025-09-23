@@ -124,7 +124,7 @@ int main ()
         //                                                 seconds_cipher.number_to_display);
         
         //main drawing call for updated quad_display
-        display_quad_ciphers_bin(&time_as_monk_cipher);
+        display_quad_ciphers(&time_as_monk_cipher);
 
         // Ensure output is displayed
         fflush(stdout); 

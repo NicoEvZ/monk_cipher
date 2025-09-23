@@ -45,7 +45,7 @@ typedef struct quad_display
     cipher_t* display[4];
 }quad_display_t;
 
-void display_quad_ciphers_bin(quad_display_t * quad_display);
+void display_quad_ciphers(quad_display_t * quad_display);
 
 void clear_quad_display(quad_display_t * display_to_clear);
 

@@ -15,7 +15,7 @@ thousands   |   hundreds
 
 */
 
-const uint8_t bin_cipher_fragments[10] = 
+const uint8_t cipher_fragments[10] = 
 {
     // zero
     // 00
@@ -99,7 +99,7 @@ const char full_cipher[cipher_len] = {
 };
 
 
-void copy_bin_fragment(char * save_location, const uint8_t * input_bin_fragment, int start_index)
+void copy_fragment(char * save_location, const uint8_t * input_fragment, int start_index)
 {
     int len_count = 0;
     for(int y = 0; y < fragment_height; y++)
@@ -116,22 +116,22 @@ void copy_bin_fragment(char * save_location, const uint8_t * input_bin_fragment,
             {
             case ones_place_fragment_start_index:
                 // does not modify the orientation of the fragment before saving
-                save_location[y * fragment_width + x] = (*input_bin_fragment & (0b100000 >> len_count)) ? 1 : 0;
+                save_location[y * fragment_width + x] = (*input_fragment & (0b100000 >> len_count)) ? 1 : 0;
                 break;
             
             case tens_place_fragment_start_index:
                 // flips the fragment horrizontaly before saving
-                save_location[y * fragment_width + ((fragment_width - 1) - x)] = (*input_bin_fragment & (0b100000 >> len_count)) ? 1 : 0;
+                save_location[y * fragment_width + ((fragment_width - 1) - x)] = (*input_fragment & (0b100000 >> len_count)) ? 1 : 0;
                 break;
             
             case hundreds_place_fragment_start_index:
                 // flips the fragment verically before saving
-                save_location[((fragment_height - 1) - y) * fragment_width + x] = (*input_bin_fragment & (0b100000 >> len_count)) ? 1 : 0;
+                save_location[((fragment_height - 1) - y) * fragment_width + x] = (*input_fragment & (0b100000 >> len_count)) ? 1 : 0;
                 break;
 
             case thousands_place_fragment_start_index:
                 // flips the fragment both veritcally and horrizontaly before saving
-                save_location[((fragment_height - 1) - y) * fragment_width + ((fragment_width - 1) - x)] = (*input_bin_fragment & (0b100000 >> len_count)) ? 1 : 0;
+                save_location[((fragment_height - 1) - y) * fragment_width + ((fragment_width - 1) - x)] = (*input_fragment & (0b100000 >> len_count)) ? 1 : 0;
                 break;
 
             default:
@@ -256,24 +256,24 @@ void make_display_cipher_empty(cipher_t * output_cipher)
 }
 
 
-void fill_bin_cipher_section(cipher_t * bin_cipher, int digit, int start_index)
+void fill_cipher_section(cipher_t * cipher, int digit, int start_index)
 {
     char final_fragment_array[fragment_len];
 
     // copy to temp location, as some fragments need manipulation, depending on place value
     // (represented here by the start index)
-    copy_bin_fragment(final_fragment_array, &bin_cipher_fragments[digit], start_index);
+    copy_fragment(final_fragment_array, &cipher_fragments[digit], start_index);
 
     //generic for loop that works for any of the defined start_index values
     int fragment_index = 0;
-    int bin_cipher_index = 0;
+    int cipher_index = 0;
     for (int i = 0; i < fragment_height; i++)
     {
         for (int j = 0; j < fragment_width; j++)
         {
-            bin_cipher->cipher_array[bin_cipher_index + start_index + j] = final_fragment_array[fragment_index + j];
+            cipher->cipher_array[cipher_index + start_index + j] = final_fragment_array[fragment_index + j];
         }
-        bin_cipher_index = (bin_cipher_index + cipher_width);
+        cipher_index = (cipher_index + cipher_width);
         fragment_index = (fragment_index + fragment_width);
     }
 
@@ -293,7 +293,7 @@ void extract_place_values_cipher(cipher_t * cipher)
     get_place_values(cipher->place_values,cipher->number_to_display);
 }
 
-void create_binary_cipher(cipher_t * bin_cipher)
+void create_cipher(cipher_t * bin_cipher)
 {
     extract_place_values_cipher(bin_cipher);
     make_display_cipher_empty(bin_cipher);
@@ -314,16 +314,16 @@ void create_binary_cipher(cipher_t * bin_cipher)
         }
 
         // ones place
-        fill_bin_cipher_section(bin_cipher, bin_cipher->place_values[ONES_PLACE], ones_place_fragment_start_index);
+        fill_cipher_section(bin_cipher, bin_cipher->place_values[ONES_PLACE], ones_place_fragment_start_index);
 
         // tens place
-        fill_bin_cipher_section(bin_cipher, bin_cipher->place_values[TENS_PLACE], tens_place_fragment_start_index);
+        fill_cipher_section(bin_cipher, bin_cipher->place_values[TENS_PLACE], tens_place_fragment_start_index);
         
         // hundres place
-        fill_bin_cipher_section(bin_cipher, bin_cipher->place_values[HUNDREDS_PLACE], hundreds_place_fragment_start_index);
+        fill_cipher_section(bin_cipher, bin_cipher->place_values[HUNDREDS_PLACE], hundreds_place_fragment_start_index);
 
         // thousands place
-        fill_bin_cipher_section(bin_cipher, bin_cipher->place_values[THOUSANDS_PLACE], thousands_place_fragment_start_index);
+        fill_cipher_section(bin_cipher, bin_cipher->place_values[THOUSANDS_PLACE], thousands_place_fragment_start_index);
 
     }
 
@@ -338,11 +338,11 @@ void clear_quad_display(quad_display_t * display_to_clear)
     }
 }
 
-void display_quad_ciphers_bin(quad_display_t * quad_display)
+void display_quad_ciphers(quad_display_t * quad_display)
 {
     cipher_t backup_blank_cipher;
     backup_blank_cipher.number_to_display = 0000;
-    create_binary_cipher(&backup_blank_cipher);
+    create_cipher(&backup_blank_cipher);
     
     // iterate over all displays in quad display, and if initialised, 
     // then create the cipher for that display
@@ -350,7 +350,7 @@ void display_quad_ciphers_bin(quad_display_t * quad_display)
     {
         if (!(quad_display->display[i] == NULL))
         {
-            create_binary_cipher(quad_display->display[i]);
+            create_cipher(quad_display->display[i]);
         }
         else
         {
