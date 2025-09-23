@@ -64,26 +64,6 @@ int main ()
     signal(SIGTERM, cleanup_die);
     signal(SIGINT, cleanup_die);
 
-    //start of binary cipher testing
-    // cipher_t binary_cipher;
-
-    // for (int i = 0; i < 10; i++)
-    // {
-    //     binary_cipher.number_to_display = 1111 * i;
-    //     extract_place_values_cipher(&binary_cipher);
-    //     create_binary_cipher(&binary_cipher);
-    //     draw_cipher(&binary_cipher);
-    //     fflush(stdout);
-    // }
-    // while (1)
-    // {
-    //     /* code */
-    // }
-    
-    // return 0;
-    //end of binary cipher testing
-    
-
     struct timespec start, end, sleep_ns;
 
     time_t rawtime;
@@ -109,19 +89,12 @@ int main ()
 
         time(&rawtime);
         info = localtime(&rawtime);
-        // printf("Current time:\t[YYYY] [MM:DD] [HH:mm] [00:ss]\n");
 
         //update the int varialbes in each cipher
         year_cipher.number_to_display = 1900 + info->tm_year;
         date_cipher.number_to_display = ((info->tm_mon + 1) * 100) + info->tm_mday;
         hours_mins_cipher.number_to_display = (info->tm_hour * 100) + info->tm_min;
         seconds_cipher.number_to_display = info->tm_sec;
-
-        // // display_as_cipher(local_time_int);
-        // printf("debug\t\t[%04d] [%04d]  [%04d]  [%04d]\n",  year_cipher.number_to_display,
-        //                                                 date_cipher.number_to_display,
-        //                                                 hours_mins_cipher.number_to_display, 
-        //                                                 seconds_cipher.number_to_display);
         
         //main drawing call for updated quad_display
         display_quad_ciphers(&time_as_monk_cipher);
