@@ -106,10 +106,6 @@ void copy_fragment(char * save_location, const uint8_t * input_fragment, int sta
     {
         for(int x = 0; x < fragment_width; x++)
         {
-            // printf("input_bin_fragment =\t\t\t");
-            // debug_print_binary(*input_bin_fragment);
-            // printf("input_bin_fragment & (0b100000 >> %d) =\t",len_count);
-            // debug_print_binary(*input_bin_fragment & (0b100000 >> len_count));
             
             // switch on start_index to know how to orient fragment before saving
             switch (start_index)
@@ -139,9 +135,6 @@ void copy_fragment(char * save_location, const uint8_t * input_fragment, int sta
                 break;
             }
 
-            // printf("save_location[%d * %d + %d] = \t\t",y,fragment_width,x);
-            // debug_print_binary(save_location[y * fragment_width + x]);
-            // printf("\n");
             len_count++;
         }
     }
@@ -216,7 +209,6 @@ void draw_dual_cipher(cipher_t * left_cipher, cipher_t * right_cipher){
     }
     printf("\e[0m");
     printf("\n");
-    // fflush(stdout); // Ensure output is displayed
 }
 
 //draw 4 ciphers, as part of a quad_display struct
@@ -234,7 +226,6 @@ void draw_quad_cipher(quad_display_t * quad_ciphers){
     }
     printf("\e[0m"); //reset to default
     printf("\n");
-    // fflush(stdout); // Ensure output is displayed
 }
 
 //places a '1' in every position of the cipher_array
