@@ -1,5 +1,6 @@
 #define _POSIX_C_SOURCE 199309L
 #include <stdio.h>
+#include <math.h>
 #include "ciphers.h"
 
 /*
@@ -98,6 +99,13 @@ const char full_cipher[cipher_len] = {
     1, 1, 1, 1, 1,
 };
 
+void cycleMeshColour(uint8_t output_rgb[3], int incriment)
+{
+    output_rgb[0] = (uint8_t) 125.5 * sin(( incriment / (double)MAX_COLOUR_INCREMENT) * 2 * 3.14) + 125.5;
+    output_rgb[1] = (uint8_t) 125.5 * sin((( incriment / (double)MAX_COLOUR_INCREMENT) * 2 * 3.14) + (1.33 * 3.14)) + 125.5;
+    output_rgb[2] = (uint8_t) 125.5 * sin((( incriment / (double)MAX_COLOUR_INCREMENT) * 2 * 3.14) + (0.66 * 3.14)) + 125.5; 
+}
+
 
 void copy_fragment(char * save_location, const uint8_t * input_fragment, int start_index)
 {
@@ -141,11 +149,13 @@ void copy_fragment(char * save_location, const uint8_t * input_fragment, int sta
 }
 
 //print and on or off visual indicator, based off binary value.
-void print_pixel(int binary_val)
-{   
+void print_pixel(int binary_val, uint8_t rgb[3])
+{  
     if (binary_val > 0) 
     {
-        printf("%s%s%s",PRINT_ON_COLOUR,PRINT_BG_COLOUR,PRINT_CHARACTER);
+        // printf("%s%s%s",PRINT_ON_COLOUR,PRINT_BG_COLOUR,PRINT_CHARACTER);
+        printf("\e[38;2;%d;%d;%dm",rgb[0],rgb[1],rgb[2]);
+        printf("\e[48;2;%d;%d;%dm%s",rgb[0],rgb[1],rgb[2],PRINT_CHARACTER);
     }
     else
     {
@@ -154,12 +164,12 @@ void print_pixel(int binary_val)
 }
 
 // prints a specified row of a cipher
-void print_row(cipher_t * cipher_to_print, int row_to_print)
+void print_row(cipher_t * cipher_to_print, int row_to_print, uint8_t rgb_colour[3])
 {
     printf(" ");
     for (int x = 0; x < cipher_width; x++)
     {
-        print_pixel(cipher_to_print->cipher_array[row_to_print * cipher_width  + x]);
+        print_pixel(cipher_to_print->cipher_array[row_to_print * cipher_width  + x], rgb_colour);
     }
     printf("\e[0m");
 }
@@ -167,10 +177,11 @@ void print_row(cipher_t * cipher_to_print, int row_to_print)
 // draw a single cipher
 void draw_cipher(cipher_t * input_cipher) 
 {
+    uint8_t bright_yellow[3] = {255,255,0};
     printf("\n");
     for (int y = 0; y < cipher_height; y++)
     {
-        print_row(input_cipher, y);
+        print_row(input_cipher, y, bright_yellow);
 
         printf("\e[0m");
         printf("\n");
@@ -182,12 +193,13 @@ void draw_cipher(cipher_t * input_cipher)
 //draw a single fragment
 void draw_fragment(char * fragment)
 {
+    uint8_t bright_yellow[3] = {255,255,0};
     printf("\n");
     for (int y = 0; y < fragment_height; y++)
     {
         for (int x = 0; x < fragment_width; x++)
         {
-            print_pixel(fragment[y * fragment_width + x]);
+            print_pixel(fragment[y * fragment_width + x], bright_yellow);
         }
         printf("\e[0m");
         printf("\n");
@@ -198,11 +210,12 @@ void draw_fragment(char * fragment)
 
 //draw two ciphers, specified by individual ciphers
 void draw_dual_cipher(cipher_t * left_cipher, cipher_t * right_cipher){
+    uint8_t bright_yellow[3] = {255,255,0};
     printf("\n");
     for (int y = 0; y < cipher_height; y++)
     {
-        print_row(left_cipher, y);
-        print_row(right_cipher, y);
+        print_row(left_cipher, y, bright_yellow);
+        print_row(right_cipher, y, bright_yellow);
         
         printf("\e[0m");
         printf("\n");
@@ -213,12 +226,18 @@ void draw_dual_cipher(cipher_t * left_cipher, cipher_t * right_cipher){
 
 //draw 4 ciphers, as part of a quad_display struct
 void draw_quad_cipher(quad_display_t * quad_ciphers){
+    uint8_t rgb[3] = {0,0,0};
+
+    cycleMeshColour(rgb, quad_ciphers->colour_incrementer);
+
+    printf("DEBUG: rgb = (%d)(%d)(%d)",rgb[0],rgb[1],rgb[2]);
+
     printf("\n");
     for (int y = 0; y < cipher_height; y++)
     {
         for (int i = 0; i < 4; i++)
         {
-            print_row(quad_ciphers->display[i], y);
+            print_row(quad_ciphers->display[i], y, rgb);
         }
 
         printf("\e[0m"); //reset to default
@@ -323,6 +342,7 @@ void create_cipher(cipher_t * bin_cipher)
 //nulls the pointer for each display
 void clear_quad_display(quad_display_t * display_to_clear) 
 {
+    display_to_clear->colour_incrementer = 0;
     for (int i = 0; i < 4; i++)
     {
         display_to_clear->display[i] = NULL;

@@ -18,7 +18,7 @@ all: $(TARGET)
 
 # Link object files into final binary
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ -lm
 
 # Compile each .c into .o
 %.o: %.c ciphers.h

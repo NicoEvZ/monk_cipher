@@ -105,6 +105,8 @@ int main ()
         //grab another time to compare with start
         clock_gettime(CLOCK_MONOTONIC, &end);
 
+        time_as_monk_cipher.colour_incrementer++;
+
         //calculates how much time is left in the second, and will wait that much time
         wait_remainder(&sleep_ns, &end, &start);
         

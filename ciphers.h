@@ -14,9 +14,12 @@
 #define hundreds_place_fragment_start_index 23
 #define thousands_place_fragment_start_index 20
 
+#define MAX_COLOUR_INCREMENT 40
+
 // #define PRINT_CHARACTER "\u25cf" //circle
 // #define PRINT_CHARACTER "\u25a0 " //Black Square + space
-#define PRINT_CHARACTER "\u25fc " //Black Square
+// #define PRINT_CHARACTER "\u25fc " //Black Square
+#define PRINT_CHARACTER "  " //Black Square
 // #define PRINT_ON_COLOUR "\e[95m" // bright pink foreground
 #define PRINT_ON_COLOUR "\e[93m" // bright yellow foreground
 #define PRINT_BG_COLOUR "\e[43m" //yellow BG
@@ -43,6 +46,7 @@ typedef struct cipher
 typedef struct quad_display
 {
     cipher_t* display[4];
+    int colour_incrementer;
 }quad_display_t;
 
 void display_quad_ciphers(quad_display_t * quad_display);
