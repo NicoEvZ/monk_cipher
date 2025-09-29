@@ -14,7 +14,7 @@
 #define hundreds_place_fragment_start_index 23
 #define thousands_place_fragment_start_index 20
 
-#define MAX_COLOUR_INCREMENT 40
+#define MAX_COLOUR_INCREMENT 800
 
 // #define PRINT_CHARACTER "\u25cf" //circle
 // #define PRINT_CHARACTER "\u25a0 " //Black Square + space

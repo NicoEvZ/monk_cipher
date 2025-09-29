@@ -154,12 +154,21 @@ void print_pixel(int binary_val, uint8_t rgb[3])
     if (binary_val > 0) 
     {
         // printf("%s%s%s",PRINT_ON_COLOUR,PRINT_BG_COLOUR,PRINT_CHARACTER);
+
+        //foreground colour
         printf("\e[38;2;%d;%d;%dm",rgb[0],rgb[1],rgb[2]);
+
+        //background colour
         printf("\e[48;2;%d;%d;%dm%s",rgb[0],rgb[1],rgb[2],PRINT_CHARACTER);
+        
+        
+        // printf("\e[38;2;%d;%d;%dm%s",rgb[0],rgb[1],rgb[2],PRINT_CHARACTER);
+
     }
     else
     {
         printf("%s\e[49m%s",PRINT_OFF_COLOUR,PRINT_CHARACTER);
+        // printf("%s\e[49m%s",PRINT_OFF_COLOUR," ");
     }
 }
 
@@ -230,7 +239,7 @@ void draw_quad_cipher(quad_display_t * quad_ciphers){
 
     cycleMeshColour(rgb, quad_ciphers->colour_incrementer);
 
-    printf("DEBUG: rgb = (%d)(%d)(%d)",rgb[0],rgb[1],rgb[2]);
+    // printf("DEBUG: rgb[%d] = (%d)(%d)(%d)",quad_ciphers->colour_incrementer,rgb[0],rgb[1],rgb[2]);
 
     printf("\n");
     for (int y = 0; y < cipher_height; y++)

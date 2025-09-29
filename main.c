@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include "ciphers.h"
 
-#define LOOP_INTERVAL_NSEC 1000000000L
+#define LOOP_INTERVAL_NSEC 50000000L
 
 
 //initial setup fuction for displaying ciphers
