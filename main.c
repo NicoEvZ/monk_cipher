@@ -6,7 +6,9 @@
 #include <stdlib.h>
 #include "ciphers.h"
 
-#define LOOP_INTERVAL_NSEC 50000000L
+#define LOOP_INTERVAL_SEC 0.1
+#define LOOP_INTERVAL_NSEC (long)(LOOP_INTERVAL_SEC * 1000000000)
+// #define LOOP_INTERVAL_NSEC 500000
 
 
 //initial setup fuction for displaying ciphers
@@ -69,18 +71,15 @@ int main ()
     time_t rawtime;
     struct tm *info;
 
-    quad_display_t time_as_monk_cipher;
-    clear_quad_display(&time_as_monk_cipher);
+    quad_display_t time_and_date_as_monk_cipher;
+    clear_quad_display(&time_and_date_as_monk_cipher);
 
-    cipher_t year_cipher;
-    cipher_t date_cipher;
-    cipher_t hours_mins_cipher;
-    cipher_t seconds_cipher;
+    cipher_t year_cipher, date_cipher, hours_mins_cipher, seconds_cipher; 
 
-    time_as_monk_cipher.display[0] = &year_cipher;
-    time_as_monk_cipher.display[1] = &date_cipher;
-    time_as_monk_cipher.display[2] = &hours_mins_cipher;
-    time_as_monk_cipher.display[3] = &seconds_cipher;
+    time_and_date_as_monk_cipher.display[0] = &year_cipher;
+    time_and_date_as_monk_cipher.display[1] = &date_cipher;
+    time_and_date_as_monk_cipher.display[2] = &hours_mins_cipher;
+    time_and_date_as_monk_cipher.display[3] = &seconds_cipher;
 
     while(1)
     {
@@ -90,14 +89,14 @@ int main ()
         time(&rawtime);
         info = localtime(&rawtime);
 
-        //update the int varialbes in each cipher
+        //update the int variables in each cipher
         year_cipher.number_to_display = 1900 + info->tm_year;
         date_cipher.number_to_display = ((info->tm_mon + 1) * 100) + info->tm_mday;
         hours_mins_cipher.number_to_display = (info->tm_hour * 100) + info->tm_min;
         seconds_cipher.number_to_display = info->tm_sec;
         
         //main drawing call for updated quad_display
-        display_quad_ciphers(&time_as_monk_cipher);
+        display_quad_ciphers(&time_and_date_as_monk_cipher);
 
         // Ensure output is displayed
         fflush(stdout); 
@@ -105,7 +104,7 @@ int main ()
         //grab another time to compare with start
         clock_gettime(CLOCK_MONOTONIC, &end);
 
-        time_as_monk_cipher.colour_incrementer++;
+        time_and_date_as_monk_cipher.colour_incrementer++;
 
         //calculates how much time is left in the second, and will wait that much time
         wait_remainder(&sleep_ns, &end, &start);

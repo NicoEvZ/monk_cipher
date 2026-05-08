@@ -3,6 +3,10 @@
 #include <math.h>
 #include "ciphers.h"
 
+const int place_value_fragment_index_array[4] = {
+    3, 0, 23, 20
+};
+
 /*
 MONK CIPHER
 
@@ -106,36 +110,50 @@ void cycleMeshColour(uint8_t output_rgb[3], int incriment)
     output_rgb[2] = (uint8_t) 125.5 * sin((( incriment / (double)MAX_COLOUR_INCREMENT) * 2 * 3.14) + (0.66 * 3.14)) + 125.5; 
 }
 
+int is_cipher_all_zeros(cipher_t *bin_cipher)
+{
+    if((bin_cipher->place_values[ONES_PLACE] == 0) & 
+        (bin_cipher->place_values[TENS_PLACE] == 0) & 
+        (bin_cipher->place_values[HUNDREDS_PLACE] == 0) & 
+        (bin_cipher->place_values[THOUSANDS_PLACE] == 0))
+        {
+            return 1;
+        }
+
+    return 0;
+}
 
 void copy_fragment(char * save_location, const uint8_t * input_fragment, int start_index)
 {
+    //len_count is used here to keep track of where we are in the current fragment, and construct a bitmask, to check one individual bit at a time.
     int len_count = 0;
     for(int y = 0; y < fragment_height; y++)
     {
         for(int x = 0; x < fragment_width; x++)
         {
+            uint8_t output_bit = (*input_fragment & (0b100000 >> len_count)) ? 1 : 0;
             
             // switch on start_index to know how to orient fragment before saving
             switch (start_index)
             {
             case ones_place_fragment_start_index:
                 // does not modify the orientation of the fragment before saving
-                save_location[y * fragment_width + x] = (*input_fragment & (0b100000 >> len_count)) ? 1 : 0;
+                save_location[y * fragment_width + x] = output_bit;
                 break;
             
             case tens_place_fragment_start_index:
                 // flips the fragment horrizontaly before saving
-                save_location[y * fragment_width + ((fragment_width - 1) - x)] = (*input_fragment & (0b100000 >> len_count)) ? 1 : 0;
+                save_location[y * fragment_width + ((fragment_width - 1) - x)] = output_bit;
                 break;
             
             case hundreds_place_fragment_start_index:
                 // flips the fragment verically before saving
-                save_location[((fragment_height - 1) - y) * fragment_width + x] = (*input_fragment & (0b100000 >> len_count)) ? 1 : 0;
+                save_location[((fragment_height - 1) - y) * fragment_width + x] = output_bit;
                 break;
 
             case thousands_place_fragment_start_index:
                 // flips the fragment both veritcally and horrizontaly before saving
-                save_location[((fragment_height - 1) - y) * fragment_width + ((fragment_width - 1) - x)] = (*input_fragment & (0b100000 >> len_count)) ? 1 : 0;
+                save_location[((fragment_height - 1) - y) * fragment_width + ((fragment_width - 1) - x)] = output_bit;
                 break;
 
             default:
@@ -148,21 +166,12 @@ void copy_fragment(char * save_location, const uint8_t * input_fragment, int sta
     }
 }
 
-//print and on or off visual indicator, based off binary value.
+//print an on or off visual indicator, based off binary value.
 void print_pixel(int binary_val, uint8_t rgb[3])
 {  
     if (binary_val > 0) 
     {
-        // printf("%s%s%s",PRINT_ON_COLOUR,PRINT_BG_COLOUR,PRINT_CHARACTER);
-
-        //foreground colour
-        printf("\e[38;2;%d;%d;%dm",rgb[0],rgb[1],rgb[2]);
-
-        //background colour
-        printf("\e[48;2;%d;%d;%dm%s",rgb[0],rgb[1],rgb[2],PRINT_CHARACTER);
-        
-        
-        // printf("\e[38;2;%d;%d;%dm%s",rgb[0],rgb[1],rgb[2],PRINT_CHARACTER);
+        printf("%s%s%s",PRINT_ON_COLOUR,PRINT_BG_COLOUR,PRINT_CHARACTER);
 
     }
     else
@@ -254,6 +263,11 @@ void draw_quad_cipher(quad_display_t * quad_ciphers){
     }
     printf("\e[0m"); //reset to default
     printf("\n");
+    printf("    %04d       %04d       %04d       %04d",  quad_ciphers->display[0]->number_to_display,
+                                                        quad_ciphers->display[1]->number_to_display,
+                                                        quad_ciphers->display[2]->number_to_display,
+                                                        quad_ciphers->display[3]->number_to_display);
+    
 }
 
 //places a '1' in every position of the cipher_array
@@ -316,35 +330,39 @@ void create_cipher(cipher_t * bin_cipher)
 {
     extract_place_values_cipher(bin_cipher);
     make_display_cipher_empty(bin_cipher);
-    if ((bin_cipher->place_values[ONES_PLACE] == 0) & 
-        (bin_cipher->place_values[TENS_PLACE] == 0) & 
-        (bin_cipher->place_values[HUNDREDS_PLACE] == 0) & 
-        (bin_cipher->place_values[THOUSANDS_PLACE] == 0))
+    if (is_cipher_all_zeros(bin_cipher))
     {
         //if all place values are 0, dont draw the center line, just return early.
         return;  
     }
-    else
+
+    // draw center line, by iterating over the whole array that is the cipher, 
+    // place a '1', starting from the middle (one fragment ends in the center), 
+    // and juming in step that are the width of the cipher (end in the middle, but one row down).
+    // repeat until we exceed the lenth of the full array.
+    for (int i = fragment_width; i < cipher_len; i = (i + cipher_width))
     {
-        //draw center line
-        for (int i = fragment_width; i < cipher_len; i = (i + cipher_width))
-        {
-            bin_cipher->cipher_array[i] = 1;
-        }
-
-        // ones place
-        fill_cipher_section(bin_cipher, bin_cipher->place_values[ONES_PLACE], ones_place_fragment_start_index);
-
-        // tens place
-        fill_cipher_section(bin_cipher, bin_cipher->place_values[TENS_PLACE], tens_place_fragment_start_index);
-        
-        // hundres place
-        fill_cipher_section(bin_cipher, bin_cipher->place_values[HUNDREDS_PLACE], hundreds_place_fragment_start_index);
-
-        // thousands place
-        fill_cipher_section(bin_cipher, bin_cipher->place_values[THOUSANDS_PLACE], thousands_place_fragment_start_index);
-
+        bin_cipher->cipher_array[i] = 1;
     }
+
+    // for every palce value section in the cipher, fill in the corresponding fragment's bits
+    for (int i = 0; i < 4; i++)
+    {
+        fill_cipher_section(bin_cipher, bin_cipher->place_values[i], place_value_fragment_index_array[i]);
+    }
+    
+
+    // // ones place
+    // fill_cipher_section(bin_cipher, bin_cipher->place_values[ONES_PLACE], ones_place_fragment_start_index);
+
+    // // tens place
+    // fill_cipher_section(bin_cipher, bin_cipher->place_values[TENS_PLACE], tens_place_fragment_start_index);
+    
+    // // hundres place
+    // fill_cipher_section(bin_cipher, bin_cipher->place_values[HUNDREDS_PLACE], hundreds_place_fragment_start_index);
+
+    // // thousands place
+    // fill_cipher_section(bin_cipher, bin_cipher->place_values[THOUSANDS_PLACE], thousands_place_fragment_start_index);
 
 }
 

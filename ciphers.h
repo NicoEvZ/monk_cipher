@@ -16,7 +16,7 @@
 
 #define MAX_COLOUR_INCREMENT 800
 
-// #define PRINT_CHARACTER "\u25cf" //circle
+// #define PRINT_CHARACTER " \u00B7 " //circle
 // #define PRINT_CHARACTER "\u25a0 " //Black Square + space
 // #define PRINT_CHARACTER "\u25fc " //Black Square
 #define PRINT_CHARACTER "  " //Black Square
@@ -52,6 +52,8 @@ typedef struct quad_display
 void display_quad_ciphers(quad_display_t * quad_display);
 
 void clear_quad_display(quad_display_t * display_to_clear);
+
+int is_cipher_all_zeros(cipher_t *bin_cipher);
 
 
 
