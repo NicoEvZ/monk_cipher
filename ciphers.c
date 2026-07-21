@@ -103,6 +103,108 @@ const char full_cipher[cipher_len] = {
     1, 1, 1, 1, 1,
 };
 
+const char digit_zero_cipher[cipher_len] = {
+    0, 1, 1, 1, 0,
+    1, 0, 0, 0, 1,
+    1, 0, 0, 1, 1,
+    1, 0, 1, 0, 1,
+    1, 1, 0, 0, 1,
+    1, 0, 0, 0, 1,
+    0, 1, 1, 1, 0,
+};
+
+
+const char digit_one_cipher[cipher_len] = {
+    1, 1, 0, 0, 0,
+    0, 1, 0, 0, 0,
+    0, 1, 0, 0, 0,
+    0, 1, 0, 0, 0,
+    0, 1, 0, 0, 0,
+    0, 1, 0, 0, 0,
+    0, 1, 0, 0, 0,
+};
+
+const char digit_two_cipher[cipher_len] = {
+    0, 1, 1, 1, 0,
+    1, 0, 0, 0, 1,
+    0, 0, 0, 0, 1,
+    0, 0, 1, 1, 0,
+    0, 1, 0, 0, 0,
+    1, 0, 0, 0, 0,
+    1, 1, 1, 1, 1,
+};
+
+const char digit_three_cipher[cipher_len] = {
+    1, 1, 1, 1, 0,
+    0, 0, 0, 0, 1,
+    0, 0, 0, 0, 1,
+    0, 1, 1, 1, 0,
+    0, 0, 0, 0, 1,
+    0, 0, 0, 0, 1,
+    1, 1, 1, 1, 0,
+};
+
+const char digit_four_cipher[cipher_len] = {
+    1, 0, 0, 0, 1,
+    1, 0, 0, 0, 1,
+    1, 0, 0, 0, 1,
+    1, 1, 1, 1, 1,
+    0, 0, 0, 0, 1,
+    0, 0, 0, 0, 1,
+    0, 0, 0, 0, 1,
+};
+
+const char digit_five_cipher[cipher_len] = {
+    1, 1, 1, 1, 1,
+    1, 0, 0, 0, 0,
+    1, 0, 0, 0, 0,
+    1, 1, 1, 1, 0,
+    0, 0, 0, 0, 1,
+    0, 0, 0, 0, 1,
+    1, 1, 1, 1, 0,
+};
+
+const char digit_six_cipher[cipher_len] = {
+    0, 1, 1, 1, 1,
+    1, 0, 0, 0, 0,
+    1, 0, 0, 0, 0,
+    0, 1, 1, 1, 0,
+    1, 0, 0, 0, 1,
+    1, 0, 0, 0, 1,
+    0, 1, 1, 1, 0,
+};
+
+const char digit_seven_cipher[cipher_len] = {
+    1, 1, 1, 1, 1,
+    0, 0, 0, 0, 1,
+    0, 0, 0, 0, 1,
+    0, 0, 1, 1, 0,
+    0, 1, 0, 0, 0,
+    0, 1, 0, 0, 0,
+    0, 1, 0, 0, 0,
+};
+
+const char digit_eight_cipher[cipher_len] = {
+    0, 1, 1, 1, 0,
+    1, 0, 0, 0, 1,
+    1, 0, 0, 0, 1,
+    0, 1, 1, 1, 0,
+    1, 0, 0, 0, 1,
+    1, 0, 0, 0, 1,
+    0, 1, 1, 1, 0,
+};
+
+const char digit_nine_cipher[cipher_len] = {
+    0, 1, 1, 1, 0,
+    1, 0, 0, 0, 1,
+    1, 0, 0, 0, 1,
+    0, 1, 1, 1, 1,
+    0, 0, 0, 0, 1,
+    0, 0, 0, 0, 1,
+    0, 1, 1, 1, 0,
+};
+
+
 void cycleMeshColour(uint8_t output_rgb[3], int incriment)
 {
     output_rgb[0] = (uint8_t) 125.5 * sin(( incriment / (double)MAX_COLOUR_INCREMENT) * 2 * 3.14) + 125.5;
@@ -184,7 +286,7 @@ void print_pixel(int binary_val, uint8_t rgb[3])
 // prints a specified row of a cipher
 void print_row(cipher_t * cipher_to_print, int row_to_print, uint8_t rgb_colour[3])
 {
-    printf(" ");
+    printf("   ");
     for (int x = 0; x < cipher_width; x++)
     {
         print_pixel(cipher_to_print->cipher_array[row_to_print * cipher_width  + x], rgb_colour);
@@ -243,19 +345,17 @@ void draw_dual_cipher(cipher_t * left_cipher, cipher_t * right_cipher){
 }
 
 //draw 4 ciphers, as part of a quad_display struct
-void draw_quad_cipher(quad_display_t * quad_ciphers){
+void draw_quad_display(quad_display_t * quad_display){
     uint8_t rgb[3] = {0,0,0};
 
-    cycleMeshColour(rgb, quad_ciphers->colour_incrementer);
-
-    // printf("DEBUG: rgb[%d] = (%d)(%d)(%d)",quad_ciphers->colour_incrementer,rgb[0],rgb[1],rgb[2]);
+    cycleMeshColour(rgb, quad_display->colour_incrementer);
 
     printf("\n");
     for (int y = 0; y < cipher_height; y++)
     {
         for (int i = 0; i < 4; i++)
         {
-            print_row(quad_ciphers->display[i], y, rgb);
+            print_row(quad_display->display[i], y, rgb);
         }
 
         printf("\e[0m"); //reset to default
@@ -263,10 +363,10 @@ void draw_quad_cipher(quad_display_t * quad_ciphers){
     }
     printf("\e[0m"); //reset to default
     printf("\n");
-    printf("    %04d       %04d       %04d       %04d",  quad_ciphers->display[0]->number_to_display,
-                                                        quad_ciphers->display[1]->number_to_display,
-                                                        quad_ciphers->display[2]->number_to_display,
-                                                        quad_ciphers->display[3]->number_to_display);
+    printf("      %04d         %04d         %04d         %04d",  quad_display->display[0]->number_to_display,
+                                                        quad_display->display[1]->number_to_display,
+                                                        quad_display->display[2]->number_to_display,
+                                                        quad_display->display[3]->number_to_display);
     
 }
 
@@ -288,7 +388,6 @@ void make_display_cipher_empty(cipher_t * output_cipher)
     }
 }
 
-
 void fill_cipher_section(cipher_t * cipher, int digit, int start_index)
 {
     char final_fragment_array[fragment_len];
@@ -309,9 +408,12 @@ void fill_cipher_section(cipher_t * cipher, int digit, int start_index)
         cipher_index = (cipher_index + cipher_width);
         fragment_index = (fragment_index + fragment_width);
     }
-
 }
 
+/*
+Returns an array of 4 values, with the digits of `input_val` in each corresponding index.
+Indexes defined by enum `place_value`.
+*/
 void get_place_values(uint8_t output_val[4], int input_val)
 {
     output_val[ONES_PLACE] = (uint8_t)(input_val % 10);
@@ -320,11 +422,96 @@ void get_place_values(uint8_t output_val[4], int input_val)
     output_val[THOUSANDS_PLACE] = (uint8_t)((((input_val / 10) / 10) / 10) % 10);
 };
 
-//take the int in the cipher struct and get place values, storing in cipher struct
+/*Wrapper of `get_place_values()` for `cipher_t*`.
+Takes `number_to_display`, and places the digit of each place value into `cipher->place_values`.*/
 void extract_place_values_cipher(cipher_t * cipher)
 {
-    get_place_values(cipher->place_values,cipher->number_to_display);
+    get_place_values(cipher->place_values, cipher->number_to_display);
 }
+
+void convert_cipher_to_bytes(cipher_t * complete_cipher, int contianer[5])
+{
+    // objective, start at bottom left of array, (0,6), and move down to collect the column.
+    // MSB is 0
+    for (int j = 0; j < cipher_width; j++)
+    {
+        int hex_number = 0;
+        
+        for (int i = cipher_height-1; i >= 0; i--)
+        {
+            hex_number = hex_number | (complete_cipher->cipher_array[i*cipher_width+j] << i); 
+        }
+        contianer[j] = hex_number;
+    }
+    
+    return;
+}
+
+/*
+Copies the values from a `const char` array to given `save_location`.
+Ensure the given location is of same size as `array_to_copy`.
+*/
+void copy_digit_array(uint8_t save_location[cipher_len], const char * array_to_copy)
+{
+    for (int i = 0; i < cipher_height; i++)
+    {
+        for (int j = 0; j < cipher_width; j++)
+        {
+            save_location[cipher_width* i + j] = array_to_copy[cipher_width * i + j];
+        }
+    }
+};
+
+void create_digit(cipher_t * digit_cipher)
+{
+    extract_place_values_cipher(digit_cipher);
+    switch (digit_cipher->number_to_display)
+    {
+    case 0:
+        copy_digit_array(digit_cipher->cipher_array, digit_zero_cipher);
+        break;
+
+    case 1:
+        copy_digit_array(digit_cipher->cipher_array, digit_one_cipher);
+        break;
+
+    case 2:
+        copy_digit_array(digit_cipher->cipher_array, digit_two_cipher);
+        break;
+
+    case 3:
+        copy_digit_array(digit_cipher->cipher_array, digit_three_cipher);
+        break;
+
+    case 4:
+        copy_digit_array(digit_cipher->cipher_array, digit_four_cipher);
+        break;
+
+    case 5:
+        copy_digit_array(digit_cipher->cipher_array, digit_five_cipher);
+        break;
+
+    case 6:
+        copy_digit_array(digit_cipher->cipher_array, digit_six_cipher);
+        break;
+
+    case 7:
+        copy_digit_array(digit_cipher->cipher_array, digit_seven_cipher);
+        break;
+
+    case 8:
+        copy_digit_array(digit_cipher->cipher_array, digit_eight_cipher);
+        break;
+
+    case 9:
+        copy_digit_array(digit_cipher->cipher_array, digit_nine_cipher);
+        break;
+
+    default:
+        copy_digit_array(digit_cipher->cipher_array, full_cipher);
+        break;
+    }
+};
 
 void create_cipher(cipher_t * bin_cipher)
 {
@@ -340,6 +527,7 @@ void create_cipher(cipher_t * bin_cipher)
     // place a '1', starting from the middle (one fragment ends in the center), 
     // and juming in step that are the width of the cipher (end in the middle, but one row down).
     // repeat until we exceed the lenth of the full array.
+
     for (int i = fragment_width; i < cipher_len; i = (i + cipher_width))
     {
         bin_cipher->cipher_array[i] = 1;
@@ -350,20 +538,6 @@ void create_cipher(cipher_t * bin_cipher)
     {
         fill_cipher_section(bin_cipher, bin_cipher->place_values[i], place_value_fragment_index_array[i]);
     }
-    
-
-    // // ones place
-    // fill_cipher_section(bin_cipher, bin_cipher->place_values[ONES_PLACE], ones_place_fragment_start_index);
-
-    // // tens place
-    // fill_cipher_section(bin_cipher, bin_cipher->place_values[TENS_PLACE], tens_place_fragment_start_index);
-    
-    // // hundres place
-    // fill_cipher_section(bin_cipher, bin_cipher->place_values[HUNDREDS_PLACE], hundreds_place_fragment_start_index);
-
-    // // thousands place
-    // fill_cipher_section(bin_cipher, bin_cipher->place_values[THOUSANDS_PLACE], thousands_place_fragment_start_index);
-
 }
 
 //nulls the pointer for each display
@@ -376,6 +550,22 @@ void clear_quad_display(quad_display_t * display_to_clear)
     }
 }
 
+void display_single_cipher(cipher_t * cipher)
+{
+    create_cipher(cipher);
+    draw_cipher(cipher);
+
+    // convert cipher to 5 hex values, compatible with hcms3967
+
+    int byte_array[5] = {0};
+    convert_cipher_to_bytes(cipher, byte_array);
+    printf("cipher in hex codes is 0x%x 0x%x 0x%x 0x%x 0x%x",   byte_array[0],
+                                                                byte_array[1],
+                                                                byte_array[2],
+                                                                byte_array[3],
+                                                                byte_array[4]);
+}
+
 void display_quad_ciphers(quad_display_t * quad_display)
 {
     cipher_t backup_blank_cipher;
@@ -386,18 +576,36 @@ void display_quad_ciphers(quad_display_t * quad_display)
     // then create the cipher for that display
     for (int i = 0; i < 4; i++)
     {
-        if (!(quad_display->display[i] == NULL))
-        {
-            create_cipher(quad_display->display[i]);
-        }
-        else
+        if (quad_display->display[i] == NULL)
         {
             printf("Display %d not initialised, proceeding with blank display\n",i+1);
             quad_display->display[i] = &backup_blank_cipher;
         }
+            create_cipher(quad_display->display[i]);    
     }
     // drawing to the screen
-    draw_quad_cipher(quad_display);
+    draw_quad_display(quad_display);
+}
+
+void display_quad_cipher_digits(quad_display_t * quad_display)
+{
+    cipher_t backup_blank_cipher;
+    backup_blank_cipher.number_to_display = 0000;
+    create_cipher(&backup_blank_cipher);
+    
+    // iterate over all displays in quad display, and if initialised, 
+    // then create the cipher for that display
+    for (int i = 0; i < 4; i++)
+    {
+        if (quad_display->display[i] == NULL)
+        {
+            printf("Display %d not initialised, proceeding with blank display\n",i+1);
+            quad_display->display[i] = &backup_blank_cipher;
+        }
+            create_digit(quad_display->display[i]);    
+    }
+    // drawing to the screen
+    draw_quad_display(quad_display);
 }
 
 void debug_print_binary(int num) {

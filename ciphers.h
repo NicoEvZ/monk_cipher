@@ -49,9 +49,15 @@ typedef struct quad_display
     int colour_incrementer;
 }quad_display_t;
 
+void display_single_cipher(cipher_t * cipher);
+
 void display_quad_ciphers(quad_display_t * quad_display);
 
+void display_quad_cipher_digits(quad_display_t * quad_display);
+
 void clear_quad_display(quad_display_t * display_to_clear);
+
+void extract_place_values_cipher(cipher_t * cipher);
 
 int is_cipher_all_zeros(cipher_t *bin_cipher);
 
