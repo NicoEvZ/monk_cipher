@@ -420,20 +420,39 @@ void extract_place_values_cipher(cipher_t * cipher)
     get_place_values(cipher->place_values, cipher->number_to_display);
 }
 
-void convert_cipher_to_bytes(cipher_t * complete_cipher, int contianer[5])
+void convert_cipher_to_bytes(cipher_t * complete_cipher)
 {
     // objective, start at bottom left of array, (0,6), and move down to collect the column.
     // MSB is 0
+
+    int cipher_bytes_per_column[5] = {0};
+
+    // iterate over every column of the cipher
     for (int j = 0; j < cipher_width; j++)
     {
         int hex_number = 0;
         
+        // starting at the MSB (lowest row), iterate upwards towards LSB (top row)
         for (int i = cipher_height-1; i >= 0; i--)
         {
+            // accumulate the binary value of the column, essentially converting it to hex.
+            // the "complete_cipher->cipher_array[i*cipher_width+j]" section gives us the 1 or 0 stored at the current position.
+            // the "<< i" shifts that binary value along, to the correct place value.
+            // the "hex_number = hex_number |" ORs the binary value with what is already in the variable, such that we are accumulating the value, one bit per loop. 
             hex_number = hex_number | (complete_cipher->cipher_array[i*cipher_width+j] << i); 
         }
-        contianer[j] = hex_number;
+        cipher_bytes_per_column[j] = hex_number;
     }
+
+    printf("cipher in hex codes is:");
+    printf("\n");
+    for (int count = 0; count < 5; count++)
+    { 
+        printf("0x%02x: ",cipher_bytes_per_column[count]);
+    
+        debug_print_binary(cipher_bytes_per_column[count]);
+    }
+    
     
     return;
 }
@@ -548,13 +567,9 @@ void display_single_cipher(cipher_t * cipher)
 
     // convert cipher to 5 hex values, compatible with hcms3967
 
-    int byte_array[5] = {0};
-    convert_cipher_to_bytes(cipher, byte_array);
-    printf("cipher in hex codes is 0x%x 0x%x 0x%x 0x%x 0x%x",   byte_array[0],
-                                                                byte_array[1],
-                                                                byte_array[2],
-                                                                byte_array[3],
-                                                                byte_array[4]);
+    // int byte_array[5] = {0};
+    convert_cipher_to_bytes(cipher);
+    
 }
 
 void display_quad_ciphers(quad_display_t * quad_display)
@@ -601,7 +616,7 @@ void display_quad_cipher_digits(quad_display_t * quad_display)
 
 void debug_print_binary(int num) {
     // Iterate from the most significant bit to the least significant bit
-    for (int i = sizeof(int) * 8 - 1; i >= 0; i--) {
+    for (int i = 8 - 1; i >= 0; i--) {
         // Check if the i-th bit is set (1) or not (0)
         // (num >> i) shifts the bit at position 'i' to the least significant position
         // & 1 then isolates that bit

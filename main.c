@@ -262,12 +262,9 @@ int main ()
     int tic = 0;
     
     display_state current_state = CIPHER; 
-
-
- 
     
-    
-    while(1){
+    // for cipher clock, displayes the hex bytes for each column of the cipher
+    while(1) {
         time_t rawtime;
         struct tm *info; 
         cipher_t cipher;
@@ -277,12 +274,13 @@ int main ()
         display_single_cipher(&cipher);
         nanosleep(&sleep_ns, NULL);
         //move cursor back %d lines
-        printf("\e[G\e[%dA", 9);
+        printf("\e[G\e[%dA", 20);
         fflush(stdout);
     }
 
-    while (1)
+    while(1) 
     {
+
         time_in_state += LOOP_INTERVAL_SEC;
         tic++;
         
