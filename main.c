@@ -256,6 +256,7 @@ int main ()
     setup();
     
     struct timespec sleep_ns;
+    sleep_ns.tv_sec = 0;
     sleep_ns.tv_nsec = LOOP_INTERVAL_NSEC;
     long double time_in_state = 0;
     int tic = 0;
@@ -263,20 +264,18 @@ int main ()
     display_state current_state = CIPHER; 
 
 
-    time_t rawtime;
-    struct tm *info;
-
-    
-
-    cipher_t cipher;
+ 
     
     
     while(1){
+        time_t rawtime;
+        struct tm *info; 
+        cipher_t cipher;
         time(&rawtime);
         info = localtime(&rawtime);
         cipher.number_to_display=info->tm_sec;
         display_single_cipher(&cipher);
-        // nanosleep(&sleep_ns, NULL);
+        nanosleep(&sleep_ns, NULL);
         //move cursor back %d lines
         printf("\e[G\e[%dA", 9);
         fflush(stdout);
